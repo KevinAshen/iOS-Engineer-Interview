@@ -20,7 +20,7 @@
 
 #### 语言和底层相关【重要： 面向对象的三大特性（关于OC）】：
 
-1. RunTime&&RunLoop&&ARC与MRC的区别
+1. ARC与MRC的区别&&RunTime&&RunLoop
   - ARC与MRC的区别
     - [ARC和MRC](https://www.jianshu.com/p/5eac83471b23)
   - RunTime讲述整个轮廓
