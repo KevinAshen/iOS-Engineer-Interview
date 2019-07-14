@@ -7,21 +7,20 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "Test.h"
 
 int main(int argc, const char * argv[]) {
     @autoreleasepool {
         // insert code here...
         NSLog(@"Hello, World!");
         
-        NSObject *obj0 = [[NSObject alloc] init];
-        NSObject *obj1 = [[NSObject alloc] init];
-        NSObject *obj2 = nil;
-        obj0 = obj1;//obj0强引用对象B；而对象A不再被ojb0引用，被废弃
-        obj2 = obj0;//obj2强引用对象B（现在obj0，ojb1，obj2都强引用对象B）
-        //obj1 = nil;//obj1不再强引用对象B
-        //obj0 = nil;//obj0不再强引用对象B
-        //obj2 = nil;
-        NSLog(@"obj0:%p obj1:%p obj2:%p", obj0, obj1, obj2);
+        id test0 = [[Test alloc] init];
+        id test1 = [[Test alloc] init];
+        [test0 setObject:test1];
+        [test1 setObject:test0];
+        
+        NSLog(@"124");
+        
     }
     return 0;
 }

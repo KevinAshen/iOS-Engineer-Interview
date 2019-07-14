@@ -51,6 +51,12 @@
   - [Leetcode](https://leetcode-cn.com) 面试官经常从这里面抽题问
   - 根据个人进度，暑假每人最少刷够10道
 - 计算机网络
-	- 链接:[百度云  ](https://pan.baidu.com/s/166qQW1-6BsBTrTRDA3Qa7Q)提取码:vx5e
 - 《图解HTTP》（可选）
 	- 需要知道从点击一个URL到显示的整个过程，对这部分不了解的必须看
+# 特别鸣谢
+## 说明
+- 在各个部分的参考文章里吧主要的参考文章都列出来了，但是对于GitHub上clone的资料没有提到，就放在这里统一鸣谢，感谢这些大大的精彩分享
+## 名单
+- [acBool / RuntimeSourceCode](https://github.com/acBool/RuntimeSourceCode)
+- [DeveloperErenLiu / RuntimePDF](https://github.com/DeveloperErenLiu/RuntimePDF)
+- [RuntimeAnalyze](https://github.com/DeveloperErenLiu/RuntimeAnalyze)
