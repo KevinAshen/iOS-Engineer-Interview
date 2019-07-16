@@ -178,6 +178,7 @@ objc_object::hasNonpointerIsa()
 inline void 
 objc_object::initIsa(Class cls)
 {
+    
     initIsa(cls, false, false);
 }
 
@@ -197,6 +198,11 @@ objc_object::initProtocolIsa(Class cls)
     return initClassIsa(cls);
 }
 
+    
+//补充知识assert（）：其作用是如果它的条件返回错误，则终止程序执行。
+    
+//这个方法的命名是instance，也就是实例对象
+//也就是说如果是对象的话直接传入true
 inline void 
 objc_object::initInstanceIsa(Class cls, bool hasCxxDtor)
 {
@@ -208,14 +214,16 @@ objc_object::initInstanceIsa(Class cls, bool hasCxxDtor)
 
 inline void 
 objc_object::initIsa(Class cls, bool nonpointer, bool hasCxxDtor) 
-{ 
+{
+    
     assert(!isTaggedPointer()); 
     
     if (!nonpointer) {
         // 如果访问isa直接返回的是类指针
+        //如果是类的的操作的话，直接返回类指针
         isa.cls = cls;
     } else {
-        // 实例对象的isa初始化直接走else分之（是isa结构体）
+        // 实例对象的isa初始化直接走else分支（是isa结构体）
         assert(!DisableNonpointerIsa);
         assert(!cls->instancesRequireRawIsa());
 
@@ -233,7 +241,7 @@ objc_object::initIsa(Class cls, bool nonpointer, bool hasCxxDtor)
         // 对新结构体newisa赋值
         // ISA_MAGIC_VALUE的值是0x001d800000000001ULL，转化成二进制是64位
         // 根据注释，使用ISA_MAGIC_VALUE赋值，实际上只是赋值了isa.magic和isa.nonpointer
-        newisa.bits = ISA_MAGIC_VALUE;
+        newisa.bits = ISA_MAGIC_VALUE;  //0x001d800000000001ULL
         // isa.magic is part of ISA_MAGIC_VALUE
         // isa.nonpointer is part of ISA_MAGIC_VALUE
         newisa.has_cxx_dtor = hasCxxDtor;
@@ -248,7 +256,7 @@ objc_object::initIsa(Class cls, bool nonpointer, bool hasCxxDtor)
         // fixme use atomics here to guarantee single-store and to
         // guarantee memory order w.r.t. the class index table
         // ...but not too atomic because we don't want to hurt instantiation
-        // 赋值。看注释这个地方不是线程安全的？？
+        // 赋值。看注释这个地方不是x线程安全的？？
         isa = newisa;
     }
 }

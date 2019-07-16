@@ -33,14 +33,14 @@
 #include <objc/objc-api.h>
 #include <stdbool.h>
 
-#if !OBJC_TYPES_DEFINED
+#if !OBJC_TYPES_DEFINED //这个宏OBJC_TYPES_DEFINED定义为1，也就是说这里面的定义都是无效的
 /// An opaque type that represents an Objective-C class.
 typedef struct objc_class *Class;
 
 /// Represents an instance of a class.
 struct objc_object {
     Class _Nonnull isa  OBJC_ISA_AVAILABILITY;
-};
+};  //这里的isa没有定是isa_t类型 我佛了
 
 /// A pointer to an instance of a class.
 typedef struct objc_object *id;
@@ -50,7 +50,7 @@ typedef struct objc_object *id;
 typedef struct objc_selector *SEL;
 
 /// A pointer to the function of a method implementation. 
-#if !OBJC_OLD_DISPATCH_PROTOTYPES
+#if !OBJC_OLD_DISPATCH_PROTOTYPES //有效
 typedef void (*IMP)(void /* id, SEL, ... */ ); 
 #else
 typedef id _Nullable (*IMP)(id _Nonnull, SEL _Nonnull, ...); 

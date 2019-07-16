@@ -38,7 +38,7 @@
 
 /* Types */
 
-#if !OBJC_TYPES_DEFINED
+#if !OBJC_TYPES_DEFINED //无效
 
 /// An opaque type that represents a method in a class definition.
 typedef struct objc_method *Method;

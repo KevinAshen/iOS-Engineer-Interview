@@ -32,6 +32,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		046EB3FF22DDCA7900CE6AD4 /* TestObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 046EB3FE22DDCA7900CE6AD4 /* TestObject.m */; };
 		393CEAC00DC69E3E000B69DE /* objc-references.mm in Sources */ = {isa = PBXBuildFile; fileRef = 393CEABF0DC69E3E000B69DE /* objc-references.mm */; };
 		393CEAC60DC69E67000B69DE /* objc-references.h in Headers */ = {isa = PBXBuildFile; fileRef = 393CEAC50DC69E67000B69DE /* objc-references.h */; };
 		39ABD72312F0B61800D1054C /* objc-weak.h in Headers */ = {isa = PBXBuildFile; fileRef = 39ABD71F12F0B61800D1054C /* objc-weak.h */; };
@@ -160,6 +161,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		046EB3FD22DDCA7900CE6AD4 /* TestObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestObject.h; sourceTree = "<group>"; };
+		046EB3FE22DDCA7900CE6AD4 /* TestObject.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TestObject.m; sourceTree = "<group>"; };
 		393CEABF0DC69E3E000B69DE /* objc-references.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = "objc-references.mm"; path = "runtime/objc-references.mm"; sourceTree = "<group>"; };
 		393CEAC50DC69E67000B69DE /* objc-references.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "objc-references.h"; path = "runtime/objc-references.h"; sourceTree = "<group>"; };
 		39ABD71F12F0B61800D1054C /* objc-weak.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "objc-weak.h"; path = "runtime/objc-weak.h"; sourceTree = "<group>"; };
@@ -464,6 +467,8 @@
 				F0B786DB224389470098C355 /* Person.m */,
 				F0FA6F712244959D00E71054 /* Person+Fly.h */,
 				F0FA6F722244959D00E71054 /* Person+Fly.m */,
+				046EB3FD22DDCA7900CE6AD4 /* TestObject.h */,
+				046EB3FE22DDCA7900CE6AD4 /* TestObject.m */,
 			);
 			path = runtimeTest;
 			sourceTree = "<group>";
@@ -749,6 +754,7 @@
 			files = (
 				F0B786DC224389470098C355 /* Person.m in Sources */,
 				F00FD3A3223B905F00A2CB68 /* main.m in Sources */,
+				046EB3FF22DDCA7900CE6AD4 /* TestObject.m in Sources */,
 				F0FA6F732244959D00E71054 /* Person+Fly.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

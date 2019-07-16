@@ -9,6 +9,7 @@
 #import "objc-runtime.h"
 #import "Person.h"
 #import "Person+Fly.h"
+#import "TestObject.h"
 
 // 把一个十进制的数转为二进制
 NSString * binaryWithInteger(NSUInteger decInt){
@@ -25,11 +26,18 @@ int main(int argc, const char * argv[]) {
     // 整个程序都包含在一个@autoreleasepool中
     @autoreleasepool {
         // insert code here...
-        Person *p = [[Person alloc] init];
-        [p fly];
-
-        Class pcls = [Person class];
-        NSLog(@"p address = %p",pcls);
+        
+        TestObject *testObj = [TestObject new];
+        NSLog(@"%p", [testObj class]);
+        NSLog(@"%p", [TestObject class]);
+        NSLog(@"%p", [NSObject class]);
+        
+        
+//        Person *p = [[Person alloc] init];
+//        [p fly];
+//
+//        Class pcls = [Person class];
+//        NSLog(@"p address = %p",pcls);
     }
     return 0;
 }

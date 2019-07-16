@@ -90,7 +90,7 @@ union isa_t {
 struct objc_object {
     // isa结构体
 private:
-    isa_t isa;
+    isa_t isa;     //这里讲到了isa的类型是isa_t
 
 public:
 
