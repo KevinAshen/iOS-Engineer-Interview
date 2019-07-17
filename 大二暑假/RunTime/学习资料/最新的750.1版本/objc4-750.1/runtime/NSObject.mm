@@ -90,8 +90,8 @@ enum HaveOld { DontHaveOld = false, DoHaveOld = true };
 enum HaveNew { DontHaveNew = false, DoHaveNew = true };
 
 struct SideTable {
-    spinlock_t slock;
-    RefcountMap refcnts;
+    spinlock_t slock;   //自旋锁
+    RefcountMap refcnts;    //存放引用计数
     weak_table_t weak_table;
 
     SideTable() {
@@ -260,6 +260,21 @@ objc_storeStrong(id *location, id obj)
 // If CrashIfDeallocating is true, the process is halted if newObj is 
 //   deallocating or newObj's class does not support weak references. 
 //   If CrashIfDeallocating is false, nil is stored instead.
+//更新弱变量。
+
+//如果havelold为true，则变量具有现有值
+
+//需要清理。该值可能为零。
+
+//如果HaveNew为true，则需要有一个新值
+
+//分配给变量。该值可能为零。
+
+//如果crashifdeallocking为true，则当newobj为
+
+//取消分配或newobj的类不支持弱引用。
+
+//如果crashifdeallocking为false，则存储nil。
 enum CrashIfDeallocating {
     DontCrashIfDeallocating = false, DoCrashIfDeallocating = true
 };
@@ -279,6 +294,11 @@ storeWeak(id *location, objc_object *newObj)
     // Acquire locks for old and new values.
     // Order by lock address to prevent lock ordering problems. 
     // Retry if the old value changes underneath us.
+//    获取新旧值的锁。
+//
+//    按锁地址排序以防止锁排序问题。
+//
+//    如果旧值低于我们，请重试。
  retry:
     if (haveOld) {
         oldObj = *location;
@@ -661,6 +681,7 @@ class AutoreleasePoolPage
     // 保存了当前页所在的线程(一个AutoreleasePoolPage属于一个线程，一个线程中可以有多个AutoreleasePoolPage)
     pthread_t const thread;
     // AutoreleasePoolPage是以双向链表的形式连接
+    //不是栈
     // 前一个节点
     AutoreleasePoolPage * const parent;
     // 后一个节点

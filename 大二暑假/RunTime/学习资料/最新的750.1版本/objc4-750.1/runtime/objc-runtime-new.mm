@@ -1986,6 +1986,7 @@ static Class realizeClass(Class cls)
     }
 
     // Connect this class to its superclass's subclass lists
+    //是不是父类
     if (supercls) {
         addSubclass(supercls, cls);
     } else {

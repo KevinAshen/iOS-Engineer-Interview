@@ -28,6 +28,7 @@ int main(int argc, const char * argv[]) {
         // insert code here...
         
         TestObject *testObj = [TestObject new];
+        NSLog(@"%p", testObj);
         NSLog(@"%p", [testObj class]);
         NSLog(@"%p", [TestObject class]);
         NSLog(@"%p", [NSObject class]);

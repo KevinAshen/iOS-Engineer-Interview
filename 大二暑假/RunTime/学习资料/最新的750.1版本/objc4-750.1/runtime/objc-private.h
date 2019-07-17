@@ -762,6 +762,12 @@ enum { CacheLineSize = 64 };
 // for cache-friendly lock striping. 
 // For example, this may be used as StripedMap<spinlock_t>
 // or as StripedMap<SomeStruct> where SomeStruct stores a spin lock.
+
+//stripedmap<t>是void*->t的映射，大小适当
+//用于缓存友好的锁条带化。
+//例如，它可以用作stripedmap<spinlock>
+
+//or as stripedmap<somestruct>其中somestruct存储自旋锁。
 template<typename T>
 class StripedMap {
 #if TARGET_OS_IPHONE && !TARGET_OS_SIMULATOR

@@ -78,10 +78,10 @@ typedef DisguisedPtr<objc_object *> weak_referrer_t;
 #define REFERRERS_OUT_OF_LINE 2
 
 struct weak_entry_t {
-    DisguisedPtr<objc_object> referent;
+    DisguisedPtr<objc_object> referent; //被指对象的地址。前面循环遍历查找的时候就是判断目标地址是否和他相等。
     union {
         struct {
-            weak_referrer_t *referrers;
+            weak_referrer_t *referrers; //可变数组,里面保存着所有指向这个对象的弱引用的地址。当这个对象被释放的时候，referrers里的所有指针都会被设置成nil。
             uintptr_t        out_of_line_ness : 2;
             uintptr_t        num_refs : PTR_MINUS_2;
             uintptr_t        mask;
@@ -89,7 +89,7 @@ struct weak_entry_t {
         };
         struct {
             // out_of_line_ness field is low bits of inline_referrers[1]
-            weak_referrer_t  inline_referrers[WEAK_INLINE_COUNT];
+            weak_referrer_t  inline_referrers[WEAK_INLINE_COUNT]; //只有4个元素的数组，默认情况下用它来存储弱引用的指针。当大于4个的时候使用referrers来存储指针。
         };
     };
 

@@ -355,3 +355,195 @@ Class object_getClass(id obj)
 }
 ```
 - 这也没啥好解释的了，结合class的内容应该很好理解了
+# objc_class扩充：bits
+- 回顾下objc_class的内容
+```objective-c
+struct objc_class : objc_object {
+    Class superclass;
+    cache_t cache;            
+    class_data_bits_t bits;  
+    //省略方法
+};
+```
+-  其中bits是绝对的主角，里面存储了类的方法列表等等的信息
+- 看下class_data_bits_t里的内容，发现就一个uintptr_t bits
+- 看到这很容易联想到和前面isa里的bits，事实上，两者确实很想，这也是我把它放在后面来讲的原因之一
+## class_rw_t与class_ro_t
+- bits中最重要的部分就是class_rw_t，class_ro_t两兄弟
+- 在哪里找到他们呢？返回objc_class的定义，发现其中有一个data函数
+```objective-c
+ class_rw_t *data() {
+        return bits.data();
+    }
+    
+//data（）
+ class_rw_t* data() {
+        return (class_rw_t *)(bits & FAST_DATA_MASK);
+    }
+
+// class_rw_t定义
+struct class_rw_t {
+    // Be warned that Symbolication knows the layout of this structure.
+    uint32_t flags;
+    uint32_t version;
+
+    const class_ro_t *ro;
+    
+    // 方法信息
+    method_array_t methods;
+    // 属性信息
+    property_array_t properties;
+    // 协议信息
+    protocol_array_t protocols;
+
+    Class firstSubclass;
+    Class nextSiblingClass;
+
+    char *demangledName;
+  //省略方法
+};
+```
+![让我](http://ww1.sinaimg.cn/large/006tNc79ly1g52oi9ps0tj30lu060mxz.jpg)
+
+- 就如同注释里说明的，其中有方法，属性，协议等等信息【后面在信息通讯等内容里我们会在仔细研究这一块】
+- 但这里有一个我们不太懂的const class_ro_t是个啥？
+```objective-c
+struct class_ro_t {
+    uint32_t flags;
+    uint32_t instanceStart;
+    uint32_t instanceSize;
+
+    const uint8_t * ivarLayout;
+    
+    const char * name;
+    // 方法列表
+    method_list_t * baseMethodList;
+    // 协议列表
+    protocol_list_t * baseProtocols;
+    // 变量列表
+    const ivar_list_t * ivars;
+
+    const uint8_t * weakIvarLayout;
+    // 属性列表
+    property_list_t *baseProperties;
+
+    method_list_t *baseMethods() const {
+        return baseMethodList;
+    }
+};
+```
+![肉](http://ww4.sinaimg.cn/large/006tNc79ly1g52oifno6kj30ji04bq3u.jpg)
+
+- 可以看到两者内容基本一样，就是class_ro_t里的协议，方法等前面多了个base
+- 这里先注意中class_rw_t定义的class_ro_t是带const修饰符的，是不可变的
+-  下面我们通过class的初始化来研究下这两个都是这么运作的
+### realizeClass方法
+```objective-c
+//精取代码
+static Class realizeClass(Class cls)
+{
+    const class_ro_t *ro;
+    class_rw_t *rw;
+    Class supercls;
+    Class metacls;
+    bool isMeta;
+    ro = (const class_ro_t *)cls->data(); //编译期间，cls->data指向的是class_ro_t结构体。cls->data()存放的是即ro中存储的是编译时就已经决定的原数据
+    rw = (class_rw_t *)calloc(sizeof(class_rw_t), 1);	//初始化rw
+    rw->ro = ro;	//rw中的ro赋值
+    rw->flags = RW_REALIZED|RW_REALIZING;
+    cls->setData(rw);
+    rw->version = isMeta ? 7 : 0; 
+    cls->chooseClassArrayIndex();
+    methodizeClass(cls);	//运行期间，将ro中的内容赋值给rw
+    return cls;
+}
+```
+#### 补充知识：addRootClass和addSubclass
+```objective-c
+static void addSubclass(Class supercls, Class subcls)
+{
+    runtimeLock.assertLocked();
+    if (supercls  &&  subcls) {
+        assert(supercls->isRealized());
+        assert(subcls->isRealized());
+        subcls->data()->nextSiblingClass = supercls->data()->firstSubclass;
+        supercls->data()->firstSubclass = subcls;
+
+        if (supercls->hasCxxCtor()) {
+            subcls->setHasCxxCtor();
+        }
+
+        if (supercls->hasCxxDtor()) {
+            subcls->setHasCxxDtor();
+        }
+
+        if (supercls->hasCustomRR()) {
+            subcls->setHasCustomRR(true);
+        }
+
+        if (supercls->hasCustomAWZ()) {
+            subcls->setHasCustomAWZ(true);
+        }
+
+        // Special case: instancesRequireRawIsa does not propagate 
+        // from root class to root metaclass
+        if (supercls->instancesRequireRawIsa()  &&  supercls->superclass) {
+            subcls->setInstancesRequireRawIsa(true);
+        }
+    }
+}
+
+static void addRootClass(Class cls)
+{
+    runtimeLock.assertLocked();
+
+    assert(cls->isRealized());
+    cls->data()->nextSiblingClass = _firstRealizedClass;
+    _firstRealizedClass = cls;
+}
+```
+- 这两个函数的职责是将某个类的子类串成一个列表，大致是superClass.firstSubclass -> subClass1.nextSiblingClass -> subClass2.nextSiblingClass -> ...
+- 而存储这些的同样是data，也就是说、以通过class_rw_t，获取到当前类的所有子类
+### methodizeClass方法
+```objective-c
+//精取代码
+// 设置类的方法列表、协议列表、属性列表，包括category的方法
+static void methodizeClass(Class cls)
+{
+    runtimeLock.assertLocked();
+
+    bool isMeta = cls->isMetaClass();
+    auto rw = cls->data();
+    auto ro = rw->ro;
+    method_list_t *list = ro->baseMethods();
+    if (list) {
+        prepareMethodLists(cls, &list, 1, YES, isBundleClass(cls));
+        //添加方法
+        rw->methods.attachLists(&list, 1);
+    }
+    property_list_t *proplist = ro->baseProperties;
+    if (proplist) {
+    //添加属性
+        rw->properties.attachLists(&proplist, 1);
+    }
+
+    protocol_list_t *protolist = ro->baseProtocols;
+    if (protolist) {
+    //添加协议
+        rw->protocols.attachLists(&protolist, 1);
+    }
+    //添加协议【略】
+}
+```
+- 也就是说是在methodizeClass中，将rw的内容填充完
+### 流程总结
+- 编写代码运行后,开始类的方法,成员变量 属性 协议等信息都存放在 const class_ro_t中,运行过程中,会将信息整合,动态创建 class_rw_t,然后会将 class_ro_t中的内容(类的原始信息:方法 属性 成员变量 协议信息) 和 分类的方法 属性 协议 成员变量的信息 存储到 class_rw_t中.并通过数组进行排序,分类方法放在数组的前端,原类信息放在数组的后端.运行初始 objc-class中的 bits是指向 class_ro_t的,bits中的data取值是从class_ro_t中获得,而后创建 class_rw_t,class_rw_t中的 class_ro_t从初始的 class_ro_t中取值,class_rw_t初始化完成后,修改 objc_class中的bits指针指向class_rw_t
+- 所以ro中存储的是编译时就已经决定的原数据，rw才是运行时动态修改的数据。
+
+![rw与ro](http://ww3.sinaimg.cn/large/006tNc79ly1g52oh9pxxej312t0sv41c.jpg)
+
+## (class_rw_t *)(bits & FAST_DATA_MASK)
+
+- 这句和isa里的非常像，想必应该看了很有感觉了
+- FAST_DATA_MASK0x00007ffffffffff8
+- 这句取出bits中47-3的位置，就是class_rw_t

@@ -115,5 +115,143 @@ objc_object::initIsa(Class cls, bool nonpointer, bool hasCxxDtor)
 #       define RC_ONE   (1ULL<<56)
 #       define RC_HALF  (1ULL<<7)
     };
+  
+//6
+// 该方法包括初始化类的read-write数据，并返回真正的类结构
+static Class realizeClass(Class cls)
+{
+    runtimeLock.assertLocked();
+
+    const class_ro_t *ro;
+    class_rw_t *rw;
+    Class supercls;
+    Class metacls;
+    bool isMeta;
+
+    if (!cls) return nil;
+    // 如果类已经实现了，直接返回
+    if (cls->isRealized()) return cls;
+    assert(cls == remapClass(cls));
+//    printf("cache bits = %d\n",sizeof(cls->cache));
+//    printf("super bits = %d\n",sizeof(cls->superclass));
+//    printf("isa bits = %d\n",sizeof(cls->ISA()));
+
+    // fixme verify class is not in an un-dlopened part of the shared cache?
+
+    // 编译期间，cls->data指向的是class_ro_t结构体
+    // 因此这里强制转成class_ro_t没有问题
+    ro = (const class_ro_t *)cls->data();
+    //printf("nname = %s",ro->name);
+    int flag = strcmp("Person",ro->name);
+    if(flag == 0){
+        printf("nname = %s\n",ro->name);
+    }
+    if (ro->flags & RO_FUTURE) {
+        // rw结构体已经被初始化（正常不会执行到这里）
+        // This was a future class. rw data is already allocated.
+        rw = cls->data();
+        ro = cls->data()->ro;
+        cls->changeInfo(RW_REALIZED|RW_REALIZING, RW_FUTURE);
+    } else {
+        // 正常的类都是执行到这里
+        // Normal class. Allocate writeable class data.
+        // 初始化class_rw_t结构体
+        rw = (class_rw_t *)calloc(sizeof(class_rw_t), 1);
+        // 赋值class_rw_t的class_ro_t，也就是ro
+        rw->ro = ro;
+        rw->flags = RW_REALIZED|RW_REALIZING;
+        // cls->data 指向class_rw_t结构体
+        cls->setData(rw);
+    }
+
+    isMeta = ro->flags & RO_META;
+
+    rw->version = isMeta ? 7 : 0;  // old runtime went up to 6
+
+
+    // Choose an index for this class.
+    // Sets cls->instancesRequireRawIsa if indexes no more indexes are available
+    cls->chooseClassArrayIndex();
+
+    if (PrintConnecting) {
+        _objc_inform("CLASS: realizing class '%s'%s %p %p #%u", 
+                     cls->nameForLogging(), isMeta ? " (meta)" : "", 
+                     (void*)cls, ro, cls->classArrayIndex());
+    }
+
+    // Realize superclass and metaclass, if they aren't already.
+    // This needs to be done after RW_REALIZED is set above, for root classes.
+    // This needs to be done after class index is chosen, for root metaclasses.
+    supercls = realizeClass(remapClass(cls->superclass));
+    metacls = realizeClass(remapClass(cls->ISA()));
+
+#if SUPPORT_NONPOINTER_ISA
+    // Disable non-pointer isa for some classes and/or platforms.
+    // Set instancesRequireRawIsa.
+    bool instancesRequireRawIsa = cls->instancesRequireRawIsa();
+    bool rawIsaIsInherited = false;
+    static bool hackedDispatch = false;
+
+    if (DisableNonpointerIsa) {
+        // Non-pointer isa disabled by environment or app SDK version
+        instancesRequireRawIsa = true;
+    }
+    else if (!hackedDispatch  &&  !(ro->flags & RO_META)  &&  
+             0 == strcmp(ro->name, "OS_object")) 
+    {
+        // hack for libdispatch et al - isa also acts as vtable pointer
+        hackedDispatch = true;
+        instancesRequireRawIsa = true;
+    }
+    else if (supercls  &&  supercls->superclass  &&  
+             supercls->instancesRequireRawIsa()) 
+    {
+        // This is also propagated by addSubclass() 
+        // but nonpointer isa setup needs it earlier.
+        // Special case: instancesRequireRawIsa does not propagate 
+        // from root class to root metaclass
+        instancesRequireRawIsa = true;
+        rawIsaIsInherited = true;
+    }
+    
+    if (instancesRequireRawIsa) {
+        cls->setInstancesRequireRawIsa(rawIsaIsInherited);
+    }
+// SUPPORT_NONPOINTER_ISA
+#endif
+
+    // Update superclass and metaclass in case of remapping
+    cls->superclass = supercls;
+    cls->initClassIsa(metacls);
+
+    // Reconcile instance variable offsets / layout.
+    // This may reallocate class_ro_t, updating our ro variable.
+    if (supercls  &&  !isMeta) reconcileInstanceVariables(cls, supercls, ro);
+
+    // Set fastInstanceSize if it wasn't set already.
+    cls->setInstanceSize(ro->instanceSize);
+
+    // Copy some flags from ro to rw
+    if (ro->flags & RO_HAS_CXX_STRUCTORS) {
+        cls->setHasCxxDtor();
+        if (! (ro->flags & RO_HAS_CXX_DTOR_ONLY)) {
+            cls->setHasCxxCtor();
+        }
+    }
+
+    // Connect this class to its superclass's subclass lists
+    if (supercls) {
+        addSubclass(supercls, cls);
+    } else {
+        addRootClass(cls);
+    }
+
+    // Attach categories
+    // 将类实现的方法（包括分类）、属性和遵循的协议添加到class_rw_t结构体中的methods、properties、protocols列表中
+    methodizeClass(cls);
+
+    return cls;
+}
+
 ```
 

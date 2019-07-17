@@ -1135,7 +1135,10 @@ struct objc_class : objc_object {
 
     class_rw_t *data() {
         // 这里的bits就是class_data_bits_t bits;
+        //class_rw_t就是一个地址
         return bits.data();
+        
+        //data():return (class_rw_t *)(bits & FAST_DATA_MASK);
     }
     void setData(class_rw_t *newData) {
         bits.setData(newData);
