@@ -40,5 +40,6 @@ int main(int argc, const char * argv[]) {
 //        Class pcls = [Person class];
 //        NSLog(@"p address = %p",pcls);
     }
+    
     return 0;
 }

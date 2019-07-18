@@ -660,6 +660,13 @@ class AutoreleasePoolPage
     // pushed and it has never contained any objects. This saves memory 
     // when the top level (i.e. libdispatch) pushes and pops pools but 
     // never uses them.
+    //当只有一个池时，空的\池\占位符存储在TLS中
+    
+    //已推送，且从未包含任何对象。这样可以节省内存
+    
+    //当顶层（即libdispatch）推送和弹出池，但
+    
+    //永远不要使用它们。
 #   define EMPTY_POOL_PLACEHOLDER ((id*)1)
     // 哨兵对象
 #   define POOL_BOUNDARY nil
@@ -671,25 +678,27 @@ class AutoreleasePoolPage
         PAGE_MAX_SIZE;  // must be multiple of vm page size
 #else
         PAGE_MAX_SIZE;  // size and alignment, power of 2
+    //4096
 #endif
     static size_t const COUNT = SIZE / sizeof(id);
 
-    magic_t const magic;
+    magic_t const magic; // 16字节
     // 一个AutoreleasePoolPage中会存储多个对象
     // next指向的是下一个AutoreleasePoolPage中下一个为空的内存地址（新来的对象会存储到next处）
-    id *next;
+    id *next; // 8字节 通过begin()方法初始化：
     // 保存了当前页所在的线程(一个AutoreleasePoolPage属于一个线程，一个线程中可以有多个AutoreleasePoolPage)
-    pthread_t const thread;
+    pthread_t const thread; // 8字节 当前pool所处的线程
     // AutoreleasePoolPage是以双向链表的形式连接
     //不是栈
     // 前一个节点
-    AutoreleasePoolPage * const parent;
+    AutoreleasePoolPage * const parent; // 8字节
     // 后一个节点
-    AutoreleasePoolPage *child;
-    uint32_t const depth;
-    uint32_t hiwat;
+    AutoreleasePoolPage *child; // 8字节
+    uint32_t const depth; // 4字节 page的深度，首次为0，以后每次初始化一个page都加1。
+    uint32_t hiwat; // 4字节 这个字段是high water的缩写，这个字段用来计算pool中最多存放的对象个数。在每次执行pop()的时候，会更新一下这个字段。
 
     // SIZE-sizeof(*this) bytes of contents follow
+    //固定的内容占56字节，之外的可以放入page中的对象地址
 
     static void * operator new(size_t size) {
         return malloc_zone_memalign(malloc_default_zone(), SIZE, SIZE);
@@ -781,6 +790,7 @@ class AutoreleasePoolPage
 
     // AutoreleasePoolPage开始地址，开始地址可以理解为第一个为空的地址
     // 也就是存放第一个对象的地址
+    //没放入对象地址的this就是56个固定的字节
     id * begin() {
         return (id *) ((uint8_t *)this+sizeof(*this));
     }
@@ -841,6 +851,7 @@ class AutoreleasePoolPage
             AutoreleasePoolPage *page = hotPage();
 
             // fixme I think this `while` can be `if`, but I can't prove it
+            //卑微工程师
             // 如果page为空的话，将page指向上一个page
             // 注释写到猜测这里可以使用if，我感觉也可以使用if
             // 因为根据AutoreleasePoolPage的结构，理论上不可能存在连续两个page都为空
@@ -1040,6 +1051,13 @@ class AutoreleasePoolPage
             // or pushing the first object into the empty placeholder pool.
             // Before doing that, push a pool boundary on behalf of the pool 
             // that is currently represented by the empty placeholder.
+            //我们正在将第二个池推到空的占位符池上
+            
+            //或将第一个对象推入空的占位符池。
+            
+            //在执行此操作之前，代表池推送池边界
+            
+            //当前由空占位符表示。
             pushExtraBoundary = true;
         }
         else if (obj != POOL_BOUNDARY  &&  DebugMissingPools) {
@@ -1085,6 +1103,7 @@ class AutoreleasePoolPage
     id *autoreleaseNewPage(id obj)
     {
         AutoreleasePoolPage *page = hotPage();
+        //hotPage()获取当前正在使用的page
         if (page) return autoreleaseFullPage(obj, page);
         else return autoreleaseNoPage(obj);
     }
@@ -1107,10 +1126,13 @@ public:
         // POOL_BOUNDARY就是nil
         // 首先将一个哨兵对象插入到栈顶
         if (DebugPoolAllocation) {
+            // 区别调试模式
+            // 调试模式下将新建一个链表节点，并将一个哨兵对象添加到链表栈中
             // Each autorelease pool starts on a new pool page.
             dest = autoreleaseNewPage(POOL_BOUNDARY);
         } else {
             dest = autoreleaseFast(POOL_BOUNDARY);
+            //POOL_BOUNDARY就是nil
         }
         assert(dest == EMPTY_POOL_PLACEHOLDER || *dest == POOL_BOUNDARY);
         return dest;
@@ -1190,6 +1212,8 @@ public:
             setHotPage(nil);
         } 
         else if (page->child) {
+            //如果当前page小于一半满，则把当前页的所有孩子都杀掉，否则，留下一个孩子，从孙子开始杀。正是因为这一步，在autoreleaseFullPage()方法中才会有这两步：
+            
             // hysteresis: keep one empty child if page is more than half full
             if (page->lessThanHalfFull()) {
                 page->child->kill();
