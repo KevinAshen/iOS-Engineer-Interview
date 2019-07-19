@@ -581,13 +581,22 @@ class DenseMap
   // Lift some types from the dependent base class into this class for
   // simplicity of referring to them.
   typedef DenseMapBase<DenseMap, KeyT, ValueT, KeyInfoT, ZeroValuesArePurgeable> BaseT;
+  //ZeroValuesArePurgeable：ZeroValuesArePurgeable 默认值是 false, 但 RefcountMap 指定其初始化为 true. 这个成员标记是否可以使用值为 0 (引用计数为 1) 的桶.
+
+                              
   typedef typename BaseT::BucketT BucketT;
   friend class DenseMapBase<DenseMap, KeyT, ValueT, KeyInfoT, ZeroValuesArePurgeable>;
 
   BucketT *Buckets;
+  //Buckets 指针管理一段连续内存空间, 也就是数组, 数组成员是 BucketT 类型的对象桶的 key 为 EmptyKey 时是空桶
+  //typedef std::pair<KeyT, ValueT> BucketT;
+  //桶的数据类型std::pair，将对象地址和对象的引用计数(这里的引用计数类似于 isa, 也是使用其中的几个 bit 来保存引用计数, 留出几个 bit 来做其它标记位)组合成一个数据类型.
   unsigned NumEntries;
+  //NumEntries 记录数组中已使用的非空的桶的个数.
   unsigned NumTombstones;
+  //当一个对象的引用计数为0, 要从桶中取出时, 其所处的位置会被标记为 TombstoneNumTombstones 就是数组中的墓碑的个数. 后面会介绍到墓碑的作用
   unsigned NumBuckets;
+  //NumBuckets 桶的数量, 因为数组中始终都充满桶, 所以可以理解为数组大小.
 
 public:
   explicit DenseMap(unsigned NumInitBuckets = 0) {

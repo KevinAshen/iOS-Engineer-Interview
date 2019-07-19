@@ -20,6 +20,7 @@
 - 官网上下载下来需要自己配置才能编译运行，如果不想配置，可以在[RuntimeSourceCode](https://github.com/acBool/RuntimeSourceCode)中clone
 
 # 最熟悉的陌生人：@autoreleasepool
+
 - 我们每次编写iOS程序都会有main.m文件，但我们从来没有操作过其中的代码
 - 里面的@autoreleasepool我们已经知道是代替了MRC中的autorelease操作，那么到底是怎么实现的呢？
 ## 补充知识：RunLoop概念
@@ -104,8 +105,9 @@ struct __AtAutoreleasePool {
 ```
 - 其中以Debug 开头的说明是调试模式的内容，会统统忽略
 - 先来研究下这个POOL_BOUNDARY是起什么作用的
-## 哨兵对象POOL_BOUNDARY
 
+## 哨兵对象POOL_BOUNDARY详解
+- POOL_BOUNDARY直译过来就是POOL的边界
 - 首先这个POOL_BOUNDARY就是nil，它的作用是隔开page中的对象
 - 假如我们执行了以下代码
 ```objective-c
@@ -118,9 +120,9 @@ push(A, B, C)
 pop3 //pop了A, B, C
 ```
 - 也就是说我们pop的时候被pop的最近一次push进来的对象
-- 但是假如一个page里面装入了这九个对象，该怎么识别呢？
-- 就是使用哨兵对象，将其中这几个分别隔开
-- 我们看一张图，将其中的Pool_SENTINEL改成POOL_BOUNDARY
+- 但是并不是每次push与pop之间存进的对象都刚好占满一个page，可能会不满，可能会超过
+- 因此这个POOL_BOUNDARY帮助我们分隔每个@autoreleasepool块之间的对象【这也是叫POOL_BOUNDARY的原因】
+- 我们看一张图，将其中的POOl_SENTINEL改成POOL_BOUNDARY
 
 ![pop](http://ww2.sinaimg.cn/large/006tNc79ly1g543del502j30yg0eet9l.jpg)
 - 会看上面push的代码，其中其实就是调用了autoreleaseFast（POOL_BOUNDARY）
@@ -215,11 +217,40 @@ static inline void pop(void *token)
     }
 ```
 
-- token是一个page中对象部分的首地址【56个字节外的地址】，根据它可以获取page
-- 对此我的理解是，token存储了page中对象部分的首地址，由于第一次push里压入的是哨兵POOL_BOUNDARY，因此里面肯定应该是POOL_BOUNDARY，所以下面可以使用它也就等于是POOL_BOUNDARY
+## token详解
+- 先来看下Apple在Autorelease pool implementation中写的注释
+```objective-c
+/***********************************************************************
+ 自动释放池实现
+ 
+ 一个线程的自动释放池是一个指针堆栈。
+每个指针要么指向要被释放的对象，要么是POOL_BOUNDARY说明一个pool的边界
+
+token是指向该pool的POOL_BOUNDARY的指针。什么时候池被pop，所有比哨兵hotter的物体都被释放。
+
+pool被分成一个双向指针构成的pages。pages在必要的时候被添加和删除
+线程本地存储指针指向hot page，在这里新被autoreleased的objects被存储
+
+
+   Autorelease pool implementation
+
+   A thread's autorelease pool is a stack of pointers. 
+   Each pointer is either an object to release, or POOL_BOUNDARY which is 
+     an autorelease pool boundary.
+   A pool token is a pointer to the POOL_BOUNDARY for that pool. When 
+     the pool is popped, every object hotter than the sentinel is released.
+   The stack is divided into a doubly-linked list of pages. Pages are added 
+     and deleted as necessary. 
+   Thread-local storage points to the hot page, where newly autoreleased 
+     objects are stored. 
+**********************************************************************/
+```
+- 这里就讲清楚了toekn本质就是指向POOL_BOUNDARY的指针，也就是每次push，pop之间的抬头
+- 请注意，只有第一次push的时候会在page中插入一个POOL_BOUNDARY【或者是中间page刚好满了，要使用新的page了】，并不是page的开头都一定是POOL_BOUNDARY
 
 ## releaseUntil
-- 这个方法顾名思义，就是上文图中的一只release，一直到哨兵
+
+- 这个方法顾名思义，就是将对象一直release，一直到stop【token】
 ```objective-c
 void releaseUntil(id *stop) 
     {
@@ -244,6 +275,7 @@ void releaseUntil(id *stop)
             if (obj != POOL_BOUNDARY) {
                 // 释放obj对象
                 objc_release(obj);
+              //一直是放到结束
             }
         }
         // 重新设置hotPage

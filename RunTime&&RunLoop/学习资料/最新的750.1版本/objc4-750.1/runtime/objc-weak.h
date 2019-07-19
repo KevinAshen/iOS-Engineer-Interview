@@ -82,10 +82,11 @@ struct weak_entry_t {
     union {
         struct {
             weak_referrer_t *referrers; //可变数组,里面保存着所有指向这个对象的弱引用的地址。当这个对象被释放的时候，referrers里的所有指针都会被设置成nil。
-            uintptr_t        out_of_line_ness : 2;
-            uintptr_t        num_refs : PTR_MINUS_2;
-            uintptr_t        mask;
-            uintptr_t        max_hash_displacement;
+            //指向 referent 对象的 weak 指针数组
+            uintptr_t        out_of_line_ness : 2; //这里标记是否超过内联边界, 下面会提到
+            uintptr_t        num_refs : PTR_MINUS_2; //数组中已占用的大小
+            uintptr_t        mask; //数组下标最大值(数组大小 - 1)
+            uintptr_t        max_hash_displacement; //最大哈希偏移值
         };
         struct {
             // out_of_line_ness field is low bits of inline_referrers[1]
@@ -117,10 +118,10 @@ struct weak_entry_t {
  * and weak_entry_t structs as their values.
  */
 struct weak_table_t {
-    weak_entry_t *weak_entries;
-    size_t    num_entries;
-    uintptr_t mask;
-    uintptr_t max_hash_displacement;
+    weak_entry_t *weak_entries;  //连续地址空间的头指针, 数组
+    size_t    num_entries;  //数组中已占用位置的个数
+    uintptr_t mask;  //数组下标最大值(即数组大小 -1)
+    uintptr_t max_hash_displacement;  //最大哈希偏移值
 };
 
 /// Adds an (object, weak pointer) pair to the weak table.

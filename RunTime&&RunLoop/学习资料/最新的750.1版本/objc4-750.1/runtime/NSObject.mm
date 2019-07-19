@@ -594,6 +594,13 @@ objc_moveWeak(id *dst, id *src)
 
 
 /***********************************************************************
+ 
+ 自动释放池实现
+ 一个线程的自动释放池是一个指针堆栈。
+ 每个指针要么指向要被释放的对象，要么是POOL_BOUNDARY说明一个pool的边界
+ token是指向该pool的POOL_BOUNDARY的指针。什么时候池被pop，所有比哨兵hotter的物体都被释放。
+pool被分成一个双向指针构成的pages。pages在必要的时候被添加和删除
+线程本地存储指针指向hot page，在这里新被autoreleased的objects被存储
    Autorelease pool implementation
 
    A thread's autorelease pool is a stack of pointers. 
@@ -845,8 +852,11 @@ class AutoreleasePoolPage
         
         // 释放AutoreleasePoolPage中的对象，直到next指向stop
         while (this->next != stop) {
+            //next是56个固定之外的东西，children就是首地址
             // Restart from hotPage() every time, in case -release 
             // autoreleased more objects
+            //每次从hotpage（）重新启动，以防释放
+            //自动释放更多对象
             // hotPage可以理解为当前正在使用的page
             AutoreleasePoolPage *page = hotPage();
 
@@ -1677,6 +1687,10 @@ objc_object::sidetable_clearDeallocating()
     // clear any weak table items
     // clear extra retain count and deallocating bit
     // (fixme warn or abort if extra retain count == 0 ?)
+    //清除所有弱表项
+    //清除额外的保留计数并释放位
+    //（如果额外保留计数=0，Fixme警告或中止？）
+    
     table.lock();
     RefcountMap::iterator it = table.refcnts.find(this);
     if (it != table.refcnts.end()) {
