@@ -91,6 +91,7 @@ struct weak_entry_t {
         struct {
             // out_of_line_ness field is low bits of inline_referrers[1]
             weak_referrer_t  inline_referrers[WEAK_INLINE_COUNT]; //只有4个元素的数组，默认情况下用它来存储弱引用的指针。当大于4个的时候使用referrers来存储指针。
+            //当指向这个对象的weak指针不超过4个，则直接使用数组inline_referrers，省去hhash
         };
     };
 
@@ -119,6 +120,7 @@ struct weak_entry_t {
  */
 struct weak_table_t {
     weak_entry_t *weak_entries;  //连续地址空间的头指针, 数组
+    //管理所有指向某对象的weak指针，也是一个hash
     size_t    num_entries;  //数组中已占用位置的个数
     uintptr_t mask;  //数组下标最大值(即数组大小 -1)
     uintptr_t max_hash_displacement;  //最大哈希偏移值

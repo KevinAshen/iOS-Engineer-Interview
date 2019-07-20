@@ -92,7 +92,7 @@ enum HaveNew { DontHaveNew = false, DoHaveNew = true };
 struct SideTable {
     spinlock_t slock;   //自旋锁
     RefcountMap refcnts;    //存放引用计数
-    weak_table_t weak_table;
+    weak_table_t weak_table;   //weak_table是一个哈希
 
     SideTable() {
         memset(&weak_table, 0, sizeof(weak_table));
@@ -262,13 +262,9 @@ objc_storeStrong(id *location, id obj)
 //   If CrashIfDeallocating is false, nil is stored instead.
 //更新弱变量。
 
-//如果havelold为true，则变量具有现有值
+//如果havelold为true，则变量具有旧值，旧值需要被清理，这个值可能是nil【该weak指针之前已经有了指向】
 
-//需要清理。该值可能为零。
-
-//如果HaveNew为true，则需要有一个新值
-
-//分配给变量。该值可能为零。
+//如果HaveNew为true，则有一个新值需要被分配到变量，这个值可能是nil
 
 //如果crashifdeallocking为true，则当newobj为
 

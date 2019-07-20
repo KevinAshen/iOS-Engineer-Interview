@@ -45,6 +45,6 @@
 - [llvm中的数据结构及内存分配策略 - DenseMap](https://blog.csdn.net/dashuniuniu/article/details/80043852)
 - [<<、>>、>>>移位操作](https://www.cnblogs.com/yulinfeng/p/6602902.html)
 - [runtime(三) weak_table_t](https://www.jianshu.com/p/7eb4d291d6d6)
-- []()
-- []()
+- [C++ 重载运算符和重载函数](https://www.runoob.com/cplusplus/cpp-overloading.html)
+- [操作系统中锁的原理](https://www.jianshu.com/p/61490effab35)
 - []()

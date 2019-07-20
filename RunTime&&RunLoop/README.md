@@ -1,4 +1,22 @@
-[TOC]
+目录
+=================
+
+   * [前言](#前言)
+   * [难点](#难点)
+      * [类，对象，isa](#类对象isa)
+         * [isa闭环](#isa闭环)
+         * [isa_t](#isa_t)
+      * [autoreleasepool](#autoreleasepool)
+         * [AutoreleasePoolPage](#autoreleasepoolpage)
+         * [push](#push)
+         * [pop](#pop)
+      * [token](#token)
+      * [weak底层实现](#weak底层实现)
+   * [正确打开【学习】姿势](#正确打开学习姿势)
+      * [类，对象，isa](#类对象isa-1)
+      * [autoreleasepool](#autoreleasepool-1)
+      * [weak底层实现](#weak底层实现-1)
+---
 # 前言
 
 - 看完《高级编程》中的MRC&&ARC，开始研究RunTime源码，目标在于弄懂ARC中真正的实现，消息发送机制，类与对象的本质，weak底层实现
@@ -41,6 +59,10 @@
 - token这个很多博文讲的不清楚，含糊过去了，导致我一直对releaseuntil不太懂
 - 直到遇到了小神
 
+## weak底层实现
+- weak实在是太麻烦了，里面涉及的C++的知识和前面几个根本不是一个level的，还有一些操作系统的知识，作为一个计算机小白能有什么办法，只能一点一点的补，一点一点的学，太累了
+- weak主要难在数据模型太复杂了，要先捋清数据模型再去学习里面的方法，可能比较好
+
 # 正确打开【学习】姿势
 ## 类，对象，isa
 - 这部分虽然零零碎碎看了很多文章，真正特别有用的是这几篇
@@ -64,3 +86,4 @@
 - 小神对于weak的研究也是不凡[runtime(二) SideTables](https://www.jianshu.com/p/ea4c176ffb2b)中对于DenseMap的分析，真正让我看懂了墓碑桶等等的过程
 - [runtime(三) weak_table_t](https://www.jianshu.com/p/7eb4d291d6d6)
 - 如果对于DenseMap还感兴趣的旁友可以瞅瞅[llvm中的数据结构及内存分配策略 - DenseMap](https://blog.csdn.net/dashuniuniu/article/details/80043852)
+- [浅谈iOS之weak底层实现原理](https://www.jianshu.com/p/f331bd5ce8f8)这篇其实是我最先找到的博客，可惜跟我的源码长得不太一样，就打入冷宫了，后来瞅瞅其实还不错
