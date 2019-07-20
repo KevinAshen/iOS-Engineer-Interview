@@ -1,4 +1,32 @@
-[TOC]
+目录
+=================
+
+   * [关于我的仓库](#关于我的仓库)
+   * [前言](#前言)
+   * [准备工作](#准备工作)
+      * [补充知识：栈与堆](#补充知识栈与堆)
+   * [内存管理(引用计数)的思考(p.2 ~ p.13)](#内存管理引用计数的思考p2--p13)
+      * [记住一张表格](#记住一张表格)
+      * [内存管理四大原则](#内存管理四大原则)
+         * [注意点](#注意点)
+         * [疑点](#疑点)
+   * [内存管理四兄弟【alloc】【retain】【release】【dealloc】(p.13 ~ p.20)](#内存管理四兄弟allocretainreleasedeallocp13--p20)
+      * [说明](#说明)
+      * [alloc](#alloc)
+         * [计数](#计数)
+         * [GNU实现](#gnu实现)
+      * [retainCount](#retaincount)
+      * [retain](#retain)
+      * [release&amp;&amp;dealloc](#releasedealloc)
+      * [Apple实现](#apple实现)
+         * [引用计数&amp;&amp;哈希表](#引用计数哈希表)
+   * [autorelease(p.20 ~ p.28)](#autoreleasep20--p28)
+      * [arrayWithCapacity](#arraywithcapacity)
+      * [苹果实现](#苹果实现)
+         * [SEL&amp;&amp;IMP](#selimp)
+         * [push&amp;&amp;pop](#pushpop)
+   * [困惑](#困惑)
+---
 # 关于我的仓库
 - 这篇文章是我为面试准备的iOS基础知识学习中的一篇
 - 我将准备面试中找到的所有学习资料，写的Demo，写的博客都放在了这个仓库里[iOS-Engineer-Interview](https://github.com/KevinAshen/iOS-Engineer-Interview)
