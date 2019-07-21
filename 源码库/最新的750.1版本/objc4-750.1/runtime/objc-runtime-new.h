@@ -1124,6 +1124,7 @@ public:
 // objc_class继承于objc_object,因此
 // objc_class中也有isa结构体
 struct objc_class : objc_object {
+    //isa_t isa;
     // ISA占8位
     // Class ISA;
     // superclass占8位

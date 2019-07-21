@@ -69,19 +69,18 @@ union isa_t {
     // 相当于是unsigned long bits;
     uintptr_t bits;
 #if defined(ISA_BITFIELD)
-    // 这里的定义在isa.h中，如下(注意uintptr_t实际上就是unsigned long)
-//    uintptr_t nonpointer        : 1;                                         \
-//    uintptr_t has_assoc         : 1;                                         \
-//    uintptr_t has_cxx_dtor      : 1;                                         \
-//    uintptr_t shiftcls          : 44; /*MACH_VM_MAX_ADDRESS 0x7fffffe00000*/ \
-//    uintptr_t magic             : 6;                                         \
-//    uintptr_t weakly_referenced : 1;                                         \
-//    uintptr_t deallocating      : 1;                                         \
-//    uintptr_t has_sidetable_rc  : 1;                                         \
-//    uintptr_t extra_rc          : 8
-    
     struct {
         ISA_BITFIELD;  // defined in isa.h
+        
+//        uintptr_t nonpointer        : 1;                                         \
+//        uintptr_t has_assoc         : 1;                                         \
+//        uintptr_t has_cxx_dtor      : 1;                                         \
+//        uintptr_t shiftcls          : 44; /*MACH_VM_MAX_ADDRESS 0x7fffffe00000*/ \
+//        uintptr_t magic             : 6;                                         \
+//        uintptr_t weakly_referenced : 1;                                         \
+//        uintptr_t deallocating      : 1;                                         \
+//        uintptr_t has_sidetable_rc  : 1;                                         \
+//        uintptr_t extra_rc          : 8
     };
 #endif
 };

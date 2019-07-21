@@ -1854,7 +1854,7 @@ callAlloc(Class cls, bool checkNil, bool allocWithZone=false)
 
 #if __OBJC2__
     if (fastpath(!cls->ISA()->hasCustomAWZ())) {
-        // No alloc/allocWithZone implementation. Go straight to the allocator.
+        // No alloc/allocWithZone 1. Go straight to the allocator.
         // fixme store hasCustomAWZ in the non-meta class and 
         // add it to canAllocFast's summary
         if (fastpath(cls->canAllocFast())) {

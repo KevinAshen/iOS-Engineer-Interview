@@ -19,21 +19,25 @@ int main(int argc, const char * argv[]) {
 //        NSArray *arr = [NSArray array];
 //        NSLog(@"%ld", arr.retainCount);
         
-        NSObject *obj = [[NSObject alloc] init];
-        //printf("retain count = %ld\n", obj.retainCount);
-        [Print printRetainCount:obj];
+        
+        NSObject *obj0 = [[NSObject alloc] init];
+        //[obj0 autorelease];
+        NSObject *obj1 = obj0;
+        
+        //[obj1 autorelease];
+        NSLog(@"%lu", (unsigned long)obj0.retainCount);
 
-        NSLog(@"%p", obj);
+        //NSLog(@"%p", obj);
         
         //[obj release];
         
-        [obj dealloc];
+        //[obj dealloc];
         
-        NSLog(@"%p", obj);
+        //NSLog(@"%p", obj);
         
         //[obj release];
         
-        NSLog(@"%p", obj);
+        //NSLog(@"%p", obj);
         //在MRC时代，创建对象时，会把引用计数自动设成1，也就是说，创建时两者其实是一致的，都是引用计数从0变成1
 //        [obj retain];
 //
