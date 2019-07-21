@@ -1,22 +1,3 @@
-目录
-=================
-
-   * [前言](#前言)
-   * [难点](#难点)
-      * [类，对象，isa](#类对象isa)
-         * [isa闭环](#isa闭环)
-         * [isa_t](#isa_t)
-      * [autoreleasepool](#autoreleasepool)
-         * [AutoreleasePoolPage](#autoreleasepoolpage)
-         * [push](#push)
-         * [pop](#pop)
-      * [token](#token)
-      * [weak底层实现](#weak底层实现)
-   * [正确打开【学习】姿势](#正确打开学习姿势)
-      * [类，对象，isa](#类对象isa-1)
-      * [autoreleasepool](#autoreleasepool-1)
-      * [weak底层实现](#weak底层实现-1)
----
 # 前言
 
 - 看完《高级编程》中的MRC&&ARC，开始研究RunTime源码，目标在于弄懂ARC中真正的实现，消息发送机制，类与对象的本质，weak底层实现
@@ -28,10 +9,8 @@
 - runtime东西真的非常多，从任何一点看下去都能学到些东西，但怎么说呢，皓首穷经谁顶得住，所以在看完基本结构体后，我就直接开始看weak之类的特别的知识点，从这些东西出发，回过去看runtime，不再不管不顾的看了，实在太多
 - 看了一些源码后觉得学习runtime，第一步还是先理解数据结构，也就是其中的容器，比如说AutoreleasePoolPage，sideTable，sideTables这类
 - 先把数据结构搞定，再去了解里面方法调用栈是怎么样的，相应的可以画一个流程图，分析完每个方法做了什么，有什么分支，相信可以在学习过程中起到事半功倍的效果
-
-# 难点
-
-## 类，对象，isa
+# 类，对象，isa
+## 难点
 ### isa闭环
 - 里面又有元类，又有父类，要理清楚还挺麻烦的
 - 另外还要明白所谓一切都是对象
@@ -40,7 +19,12 @@
 - 这个主要比较麻烦，从定义到初始化过程，都要很细致的一点点找下去
 - 特别是初始化和获取isa那一块，再次暴露我计算机基础之薄弱🌚
 
-## autoreleasepool
+## 我的博客
+- 本文主要研究RunTime基础，里面的基本结构体，类与对象的基本模型
+- 尤其是其中的isa结构体，对其存储进行了探究
+- 链接：[RunTime源码中的基本结构体【类，对象，isa】](https://github.com/KevinAshen/iOS-Engineer-Interview/blob/master/RunTime&&RunLoop/%E5%8D%9A%E5%AE%A2/RunTime%E6%BA%90%E7%A0%81%E4%B8%AD%E7%9A%84%E5%9F%BA%E6%9C%AC%E7%BB%93%E6%9E%84%E4%BD%93%E3%80%90%E7%B1%BB%EF%BC%8C%E5%AF%B9%E8%B1%A1%EF%BC%8Cisa%E3%80%91.md)
+# autoreleasepool
+## 难点
 ### AutoreleasePoolPage
 
 - page是存储调用autorelease方法的对象的地址的数据结构
@@ -54,14 +38,20 @@
 - pop和push分不开，要明白哨兵对象POOL_BOUNDARY在栈里面起了什么作用
 - 结合数据结构方面的理解，就能很好的理解这里面的流程
 
-## token
-
+### token
 - token这个很多博文讲的不清楚，含糊过去了，导致我一直对releaseuntil不太懂
 - 直到遇到了小神
 
-## weak底层实现
+## 我的博客
+- 本文主要研究autoreleasepool，探究其中的autoreleasepage结构，push，pop方法实现
+- 链接：[从RunTime源码回看autoreleasepool](https://github.com/KevinAshen/iOS-Engineer-Interview/blob/master/RunTime&&RunLoop/%E5%8D%9A%E5%AE%A2/%E4%BB%8ERunTime%E6%BA%90%E7%A0%81%E5%9B%9E%E7%9C%8Bautoreleasepool.md)
+# weak底层实现
+## 难点
 - weak实在是太麻烦了，里面涉及的C++的知识和前面几个根本不是一个level的，还有一些操作系统的知识，作为一个计算机小白能有什么办法，只能一点一点的补，一点一点的学，太累了
 - weak主要难在数据模型太复杂了，要先捋清数据模型再去学习里面的方法，可能比较好
+## 我的博客
+- 本文主要研究weak的底层实现，先研究其中涉及到的SideTable里的数据模型，之后探究weak中相关的方法
+- 链接：[从RunTime源码回看weak底层实现](https://github.com/KevinAshen/iOS-Engineer-Interview/blob/master/RunTime&&RunLoop/%E5%8D%9A%E5%AE%A2/%E4%BB%8ERunTime%E6%BA%90%E7%A0%81%E5%9B%9E%E7%9C%8Bweak%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0.md)
 
 # 正确打开【学习】姿势
 ## 类，对象，isa
@@ -87,3 +77,53 @@
 - [runtime(三) weak_table_t](https://www.jianshu.com/p/7eb4d291d6d6)
 - 如果对于DenseMap还感兴趣的旁友可以瞅瞅[llvm中的数据结构及内存分配策略 - DenseMap](https://blog.csdn.net/dashuniuniu/article/details/80043852)
 - [浅谈iOS之weak底层实现原理](https://www.jianshu.com/p/f331bd5ce8f8)这篇其实是我最先找到的博客，可惜跟我的源码长得不太一样，就打入冷宫了，后来瞅瞅其实还不错
+# 参考文章
+**源码面前，了无秘密**
+
+- [OC源码 —— alloc, init, new和dealloc](https://www.jianshu.com/p/44f2ef4552a8)
+- [Runtime源码 —— 对象、类和isa](https://www.jianshu.com/p/a8eade8a1c6d)
+- [Runtime源码 —— 概述和调试环境准备](https://www.jianshu.com/p/5d94eafc53ca)
+- [详解Class和MetaClass](https://blog.csdn.net/u014686721/article/details/82189342)
+- [深入理解objc中的类与对象](https://www.jianshu.com/p/9128a3ccf1ff)
+- [iOS Runtime系列一、objc_class深深的误解](https://www.jianshu.com/p/1e16e3b745c1)
+- [iOS中isa的深层理解](https://www.jianshu.com/p/20f1251916b9)
+- [C/C++ assert()函数用法总结](https://www.cnblogs.com/lvchaoshun/p/7816288.html)
+- [Non-pointer isa](http://www.sealiesoftware.com/blog/archive/2013/09/24/objc_explain_Non-pointer_isa.html)
+- [结构体 isa_t](https://www.jianshu.com/p/571373ddd0eb)
+- [从 NSObject 的初始化了解 isa](https://github.com/Draveness/iOS-Source-Code-Analyze/blob/master/contents/objc/从%20NSObject%20的初始化了解%20isa.md)
+- [What is a meta-class in Objective-C?](http://www.cocoawithlove.com/2010/01/what-is-meta-class-in-objective-c.html)
+- [Classes and metaclasses](http://www.sealiesoftware.com/blog/archive/2009/04/14/objc_explain_Classes_and_metaclasses.html)
+- [数据类型--ULL、ll](https://blog.csdn.net/shenwansangz/article/details/40078407)
+- [arm64是什么](https://blog.csdn.net/weixin_33795743/article/details/91154782)
+- [深入理解 Tagged Pointer](https://www.infoq.cn/article/deep-understanding-of-tagged-pointer/)
+- [iOS开发之runtime（6）：初识class_rw_t](https://www.jianshu.com/p/569e3910cee9)
+- [浅谈iOS之weak底层实现原理](https://www.jianshu.com/p/f331bd5ce8f8)
+- [C++ 泛型基础](https://blog.csdn.net/xinzheng_wang/article/details/6674847)
+- [Objective-C 小记（10）__weak](https://www.jianshu.com/p/eff6b9443800)
+- [C++类模板 template <class T>](https://www.cnblogs.com/msymm/p/9750787.html)
+- [自旋锁百度百科](https://baike.baidu.com/item/%E8%87%AA%E6%97%8B%E9%94%81/9137985?fr=aladdin)
+- [Linux的自旋锁struct spinlock_t的使用](https://www.linuxidc.com/Linux/2012-02/54313.htm)
+- [Retry机制](https://blog.csdn.net/qq_20160723/article/details/78085657)
+- [Objective-C runtime机制(7)——SideTables, SideTable, weak_table, weak_entry_t](https://blog.csdn.net/u013378438/article/details/82790332)
+- [iOS管理对象内存的数据结构以及操作算法--SideTables、RefcountMap、weak_table_t-一](https://www.jianshu.com/p/ef6d9bf8fe59)
+- [并发编程系列之一：锁的意义](https://blog.csdn.net/caoshangpa/article/details/78845203)
+- [C++ map的基本操作和使用](http://blog.sina.com.cn/s/blog_61533c9b0100fa7w.html)
+- [C语言中的位屏蔽(bit masking)是怎么回事](http://c.biancheng.net/cpp/html/1611.html)
+- [深入浅出ARC(上)](http://blog.tracyone.com/2015/06/14/%E6%B7%B1%E5%85%A5%E6%B5%85%E5%87%BAARC-%E4%B8%8A/)
+- [并发(Concurrent)与并行(Parallel)的区别](https://blog.csdn.net/lconline/article/details/5982237)
+- [操作系统内存管理——分区、页式、段式管理](https://blog.csdn.net/hguisu/article/details/5713164)
+- [iOS管理对象内存的数据结构以及操作算法--SideTables、RefcountMap、weak_table_t-二](https://www.jianshu.com/p/8577286af88e)
+- [OC源码 —— autoreleasepool](https://www.jianshu.com/p/ca7835b41699)
+- [ios内存管理（四）：Autorelease技术](https://www.jianshu.com/p/4048230ecda5)
+- [ios内存管理（五）：RunLoop与AutoreleasePool](https://www.jianshu.com/p/739496fe4db1)
+- [OC源码 —— retain和release](https://www.jianshu.com/p/18c3e88dfbf1)
+- [自动释放池的前世今生](https://github.com/draveness/analyze/blob/master/contents/objc/%E8%87%AA%E5%8A%A8%E9%87%8A%E6%94%BE%E6%B1%A0%E7%9A%84%E5%89%8D%E4%B8%96%E4%BB%8A%E7%94%9F.md)
+- [Objective-C Autorelease Pool 的实现原理](http://blog.leichunfeng.com/blog/2015/05/31/objective-c-autorelease-pool-implementation-principle/)
+- [alignas 说明符 (C++11 起)](https://zh.cppreference.com/w/cpp/language/alignas)
+- [runtime(二) SideTables](https://www.jianshu.com/p/ea4c176ffb2b)
+- [哈希桶算法](https://www.cnblogs.com/xqn2017/p/7997666.html)
+- [llvm中的数据结构及内存分配策略 - DenseMap](https://blog.csdn.net/dashuniuniu/article/details/80043852)
+- [<<、>>、>>>移位操作](https://www.cnblogs.com/yulinfeng/p/6602902.html)
+- [runtime(三) weak_table_t](https://www.jianshu.com/p/7eb4d291d6d6)
+- [C++ 重载运算符和重载函数](https://www.runoob.com/cplusplus/cpp-overloading.html)
+- [操作系统中锁的原理](https://www.jianshu.com/p/61490effab35)
