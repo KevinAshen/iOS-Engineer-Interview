@@ -27,12 +27,13 @@ int main(int argc, const char * argv[]) {
     @autoreleasepool {
         // insert code here...
         
-        TestObject *testObj = [TestObject new];
-        NSLog(@"%p", testObj);
-        NSLog(@"%p", [testObj class]);
-        NSLog(@"%p", [TestObject class]);
-        NSLog(@"%p", [NSObject class]);
-        
+        NSObject *obj0 = [[NSObject alloc] init];
+        NSObject *obj1 __weak = obj0;
+        NSObject *obj3 __weak = obj1;
+//        NSObject *obj2 = obj1;
+//        printf("retain count = %ld\n",CFGetRetainCount((__bridge CFTypeRef)(obj0)));
+//        printf("retain count = %ld\n",CFGetRetainCount((__bridge CFTypeRef)(obj1)));
+//        printf("retain count = %ld\n",CFGetRetainCount((__bridge CFTypeRef)(obj2)));
         
 //        Person *p = [[Person alloc] init];
 //        [p fly];

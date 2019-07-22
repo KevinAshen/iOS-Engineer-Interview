@@ -282,6 +282,7 @@ storeWeak(id *location, objc_object *newObj)
     assert(haveOld  ||  haveNew);
     if (!haveNew) assert(newObj == nil);
 
+    printf("haveOld:%d haveNew:%d crashIfDeallocating:%d\n", haveOld, haveNew, crashIfDeallocating);
     Class previouslyInitializedClass = nil;
     id oldObj;
     SideTable *oldTable;
@@ -503,7 +504,7 @@ objc_loadWeakRetained(id *location)
         // Fast case. We know +initialize is complete because
         // default-RR can never be set before then.
         assert(cls->isInitialized());
-        if (! obj->rootTryRetain()) {
+        if (! obj->rootTryRetain()) {   //rootTryRetain执行了retain操作
             result = nil;
         }
     }

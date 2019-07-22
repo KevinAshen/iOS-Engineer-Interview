@@ -854,6 +854,11 @@ class StripedMap {
 // nil is disguised as itself so zero-filled memory works as expected, 
 // which means 0x80..00 is also disguised as itself but we don't care.
 // Note that weak_entry_t knows about this encoding.
+
+//DisguisedPtr<T>与指针类型T*类似，除了对存储值进行伪装，以使其不受“leaks”等工具的影响。
+//nil被伪装成它自己，所以零填充的内存按预期工作，
+//这意味着0x80..00也被伪装成自己，但我们不在乎。
+//注意，weak_entry_t不知道这个代码。
 template <typename T>
 class DisguisedPtr {
     uintptr_t value;

@@ -1,39 +1,4 @@
-目录
-=================
-
-   * [关于我的仓库](#关于我的仓库)
-   * [前言](#前言)
-   * [准备工作](#准备工作)
-   * [数据模型](#数据模型)
-      * [SideTables()](#sidetables)
-         * [StripedMap](#stripedmap)
-            * [补充知识：哈希桶](#补充知识哈希桶)
-            * [补充知识：模版函数](#补充知识模版函数)
-            * [补充知识：alignas()](#补充知识alignas)
-            * [补充知识：重载](#补充知识重载)
-      * [SideTable](#sidetable)
-         * [spinlock_t slock【自旋锁】](#spinlock_t-slock自旋锁)
-            * [补充知识：锁](#补充知识锁)
-            * [补充知识：分离锁&amp;&amp;拆分锁](#补充知识分离锁拆分锁)
-            * [补充知识：自旋锁](#补充知识自旋锁)
-            * [补充知识：并行&amp;&amp;并发](#补充知识并行并发)
-            * [苹果的抉择](#苹果的抉择)
-         * [RefcountMap refcnts【存放引用计数】](#refcountmap-refcnts存放引用计数)
-            * [DenseMap](#densemap)
-               * [补充知识：LLVM](#补充知识llvm)
-               * [哈希实现](#哈希实现)
-         * [weak_table_t weak_table](#weak_table_t-weak_table)
-            * [weak_entry_t *weak_entries【存放weak指针】](#weak_entry_t-weak_entries存放weak指针)
-      * [结构总结](#结构总结)
-      * [SideTables以及SideTable的关系](#sidetables以及sidetable的关系)
-   * [weak相关的方法](#weak相关的方法)
-      * [objc_initWeak(id *location, id newObj)](#objc_initweakid-location-id-newobj)
-      * [storeWeak(id *location, objc_object *newObj)](#storeweakid-location-objc_object-newobj)
-         * [weak_unregister_no_lock](#weak_unregister_no_lock)
-         * [weak_register_no_lock](#weak_register_no_lock)
-         * [dealloc后将weak指针置nil【weak_clear_no_lock(weak_table_t *weak_table, id referent_id) 】](#dealloc后将weak指针置nilweak_clear_no_lockweak_table_t-weak_table-id-referent_id-)
-      * [方法总结](#方法总结)
----
+[TOC]
 # 关于我的仓库
 
 - 这篇文章是我为面试准备的iOS基础知识学习中的一篇
@@ -56,6 +21,7 @@
 - 官网上下载下来需要自己配置才能编译运行，如果不想配置，可以在[RuntimeSourceCode](https://github.com/acBool/RuntimeSourceCode)中clone
 
 # 数据模型
+
 - 看过我的其他博文的读者应该发现我比较喜欢看源代码方法调用栈，看到某个方法，再去研究其涉及的数据模型
 - 但由于weak涉及到的数据模型过多，不一口气讲完很容易搞混，所以在这里我会把所有涉及到的数据模型全部讲清楚，包括里面存什么，以什么方式存等等
 - 这样子也方便大家先对weak有个基础的概念，下面看方法调用栈也不至于懵逼
@@ -221,6 +187,61 @@ class DenseMap
   //NumBuckets 桶的数量, 因为数组中始终都充满桶, 所以可以理解为数组大小.
 }
 ```
+#### DisguisedPtr
+- DisguisedPtr是runtime对于普通对象指针(引用)的一个封装，目的在于隐藏weak_table_t的内部指针。
+
+```objective-c
+//苹果的注释：
+//DisguisedPtr<T>与指针类型T*类似，除了对存储值进行伪装，以使其不受“leaks”等工具的影响。
+//nil被伪装成它自己，所以零填充的内存按预期工作，
+//这意味着0x80..00也被伪装成自己，但我们不在乎。
+//注意，weak_entry_t不知道这个代码。
+template <typename T>
+class DisguisedPtr {
+    uintptr_t value;
+
+    static uintptr_t disguise(T* ptr) {
+        return -(uintptr_t)ptr;
+    }
+
+    static T* undisguise(uintptr_t val) {
+        return (T*)-val;
+    }
+
+ public:
+    DisguisedPtr() { }
+    DisguisedPtr(T* ptr) 
+        : value(disguise(ptr)) { }
+    DisguisedPtr(const DisguisedPtr<T>& ptr) 
+        : value(ptr.value) { }
+
+    DisguisedPtr<T>& operator = (T* rhs) {
+        value = disguise(rhs);
+        return *this;
+    }
+    DisguisedPtr<T>& operator = (const DisguisedPtr<T>& rhs) {
+        value = rhs.value;
+        return *this;
+    }
+
+    operator T* () const {
+        return undisguise(value);
+    }
+    T* operator -> () const { 
+        return undisguise(value);
+    }
+    T& operator * () const { 
+        return *undisguise(value);
+    }
+    T& operator [] (size_t i) const {
+        return undisguise(value)[i];
+    }
+};
+```
+
+- 对于这个我了解的也不是很清楚，大概理解就是通过static uintptr_t disguise(T* ptr) {return -(uintptr_t)ptr;}来实现隐藏
+- 我们试着理解Apple注释里说【0x80..00也被伪装成自己】，由于这个数字就是首位是1，该位在有符号的情况下理解为-0，则nil理解为+0【0正1负】，因此这里认为它们被伪装成了自己【还是不太懂啊！！！】
+
 #### DenseMap
 - 当你进入DenseMap定义的时候，抬头看下最上方的文件名，发现已经离开objc4了，进入了一个叫llvm-DenseMap.h的里世界，这里面的代码也是开着全局搜索也搜不到的神仙代码【但很奇怪，这里还是可以编辑】
 ##### 补充知识：LLVM
@@ -332,7 +353,9 @@ objc_initWeak(id *location, id newObj)
 }
 ```
 - 该方法中的两个参数location是指weak 指针，newObj 是 weak 指针将要指向的对象
+
 ## storeWeak(id *location, objc_object *newObj)
+
 ```objective-c
     id oldObj;
     SideTable *oldTable;
@@ -401,6 +424,42 @@ weak_unregister_no_lock(weak_table_t *weak_table, id referent_id,
 ```
 - 这里先是remove_referrer(entry, referrer);从对应的entry中删除该weak记录
 - 之后我们需要判断，还有没有指向这个地址的weak指针了，所以有下面的判空操作，如果这个entry已经没有东西了，将整个删除
+
+### weak_entry_for_referent(weak_table_t *weak_table, objc_object *referent)
+
+- 该方法通过对象的地址，获取到该weak_table中的entry【保存着指向某对象的所有weak指针】
+
+```objective-c
+static weak_entry_t *
+weak_entry_for_referent(weak_table_t *weak_table, objc_object *referent)
+{
+    assert(referent);
+
+    weak_entry_t *weak_entries = weak_table->weak_entries;
+
+    if (!weak_entries) return nil;
+
+    size_t begin = hash_pointer(referent) & weak_table->mask;
+    size_t index = begin;
+    size_t hash_displacement = 0;
+    while (weak_table->weak_entries[index].referent != referent) {
+        index = (index+1) & weak_table->mask;
+        if (index == begin) bad_weak_table(weak_table->weak_entries);
+        hash_displacement++;
+        if (hash_displacement > weak_table->max_hash_displacement) {
+            return nil;
+        }
+    }
+    
+    return &weak_table->weak_entries[index];
+}
+```
+
+
+
+- hash_pointer也是使用指针地址，映射到一个索引。`&weak_table->mask`这个操作是？这个mask实际值是表的size-1,而size是2的n次方进行扩张的，所以mask的形式就`1111 1111 1111`这种，索引和mask位与之后的值必定就落在了[0, size]范围内。也就是说，先是通过hash_pointer对地址进行hash映射，得到下标，接下来通过位遮蔽，保证这个映射是在范围内的，不会超出范围
+- index = (index+1) & weak_table->mask;是在遇到哈希冲突的时候，就一直往下找下一个位置
+
 ### weak_register_no_lock
 ```objective-c
 id 
@@ -478,11 +537,12 @@ static void append_referrer(weak_entry_t *entry, objc_object **new_referrer)
     entry->num_refs++;
 }
 ```
-- 这里首先是要判断关联数组里有没有空位【管理数组没有使用哈希】，如果关联数组有空位的话，直接插入
+- 这里首先是要判断关联数组里有没有空位【关联数组没有使用哈希】，如果关联数组有空位的话，直接插入
 - 没有空位需要使用且是刚好第五个的情况，需要初始化一个weak_referrer_t，将关联数组里的数据先存进去【也就是说不会两个一起用】
 - 接下来通过哈希操作存入
 
 ### dealloc后将weak指针置nil【weak_clear_no_lock(weak_table_t *weak_table, id referent_id) 】
+
 ```objective-c
 void 
 weak_clear_no_lock(weak_table_t *weak_table, id referent_id) 
@@ -522,3 +582,110 @@ weak_clear_no_lock(weak_table_t *weak_table, id referent_id)
 ## 方法总结
 
 ![2664540-255e050c9fafa044](http://ww4.sinaimg.cn/large/006tNc79ly1g56fgc992dj30fd0fmwg2.jpg)
+
+# 后续更新
+## 对于weak对象的访问：objc_loadWeakRetained
+
+- 先回看下《iOS高级编程》中的描述
+```objective-c
+id  __weak obj1 = obj0;
+NSLog(@"class = %@",[obj1 class]);
+
+id __weak obj1 = obj0;
+id __autoreleasing tmp = obj1;
+NSLog(@"class = %@",[tmp class]);//实际访问的是注册到自动释放池的对象
+```
+- 现在我们有源码了，可以看看具体是怎么实现的
+```objective-c
+//实验代码
+NSObject *obj0 = [[NSObject alloc] init];
+NSObject *obj1 __weak = obj0;
+printf("retain count = %ld\n",CFGetRetainCount((__bridge CFTypeRef)(obj0))); //结果为1
+printf("retain count = %ld\n",CFGetRetainCount((__bridge CFTypeRef)(obj1)));	//断点打在这里 结果为2
+```
+- 接着跟着方法调用栈往下走，发现来到objc_loadWeakRetained
+```objective-c
+id
+objc_loadWeakRetained(id *location)
+{
+    id obj;
+    id result;
+    Class cls;
+
+    SideTable *table;
+    
+ retry:
+    // fixme std::atomic this load
+    obj = *location;
+    if (!obj) return nil;
+    if (obj->isTaggedPointer()) return obj;
+    
+    table = &SideTables()[obj];
+    
+    table->lock();
+    if (*location != obj) {
+        table->unlock();
+        goto retry;
+    }
+    result = obj;
+
+    cls = obj->ISA();
+    if (! cls->hasCustomRR()) {
+        // Fast case. We know +initialize is complete because
+        // default-RR can never be set before then.
+        assert(cls->isInitialized());
+        if (! obj->rootTryRetain()) {   //rootTryRetain执行了retain操作
+            result = nil;
+        }
+    }    
+    table->unlock();
+    return result;
+}
+
+```
+
+- 这过方法里的 if (! obj->rootTryRetain())这一句调用了retain方法，达到了引用计数+1，防止dealloc的作用
+- 接着我们给objc_release方法打上断点，发现这句打印一结束，就会调用release方法【是谁调用的，为什么会调用的，我是一问三不知】
+- 也就是说对于weak修饰对象的访问都会调用该方法，进行retain【包括NSObject *obj0 = [[NSObject alloc] init];NSObject *obj1 __weak = obj0;NSObject *obj2 = obj1;中的第三句，也算是访问】
+- 因此，书上说的autorelease的方式并不是目前真正的实现方式了
+- 我个人认为这种方式还要比autorelease更好理解些
+
+## isa_t中存放的引用计数
+
+- isa_t中有这两块内容，uintptr_t has_sidetable_rc【是否使用sidetable来存放引用计数】，uintptr_t extra_rc【引用计数】
+- 也就是说对于能存的下的引用计数是通过isa来存储的
+- 这里我们可观察下retainCount方法来了解下这两块之间的关系
+
+```objective-c
+inline uintptr_t 
+objc_object::rootRetainCount()
+{
+    if (isTaggedPointer()) return (uintptr_t)this;
+
+    sidetable_lock();
+    isa_t bits = LoadExclusive(&isa.bits);
+    ClearExclusive(&isa.bits);
+    if (bits.nonpointer) {
+        uintptr_t rc = 1 + bits.extra_rc;
+        if (bits.has_sidetable_rc) {
+            rc += sidetable_getExtraRC_nolock();
+        }
+        sidetable_unlock();
+        return rc;
+    }
+
+    sidetable_unlock();
+    return sidetable_retainCount();
+}
+```
+
+- 哇，真的是好久没看到这么简单易懂的源码，在经历了各色妖魔鬼怪，现在这种跟幼儿读物一样的源码我们读起来完全跟割黄油一样easy，丝滑✌️
+- 也就是说，最后返回的引用计数会是isa中的加上【如果超过限制】，sideTable中的
+
+
+
+# 目前关于weak的疑惑
+
+1. 对于weak_referrer_t该数组，在weak_entry_t已经存了被指对象的地址了，为什么还要在weak_referrer_t通过hash来存放数据，明明只要存放所有weak指针的地址就好了。
+2. 对于DenseMap这个结构，再出现Hash冲突的时候，会往后顺移一位，那么我再通过地址找到value的时候，我怎么知道这个value是不是我要找的value，它之前有没有往后移，怎么执行应用计数+1操作？
+3. 在append_referrer方法中，到底是怎么进行的weak指针插入？weak_referrer_t &ref = entry->referrers[index];ref = new_referrer;entry->num_refs++;什么意思？？

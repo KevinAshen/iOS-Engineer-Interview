@@ -153,3 +153,8 @@
 - [runtime(三) weak_table_t](https://www.jianshu.com/p/7eb4d291d6d6)
 - [C++ 重载运算符和重载函数](https://www.runoob.com/cplusplus/cpp-overloading.html)
 - [操作系统中锁的原理](https://www.jianshu.com/p/61490effab35)
+- [读读objc源码(二)：weak类型指针的实现](https://www.jianshu.com/p/ed43b17c8a72)
+- [weak引用变量是否线程安全](https://www.cnblogs.com/doudouyoutang/p/6275077.html)
+- [进一步谈谈 __strong 和 __weak](http://ziecho.com/post/ios/2015-09-02)
+- [OC Runtime之Weak(2)---weak_entry_t](https://www.jianshu.com/p/045294e1f062)
+- [Objective-C之isa引用计数存储验证](https://www.jianshu.com/p/a4c34e52bdac)

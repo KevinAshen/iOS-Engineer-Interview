@@ -1,47 +1,6 @@
-目录
-=================
-
-   * [关于我的仓库](#关于我的仓库)
-   * [前言](#前言)
-   * [准备工作](#准备工作)
-   * [类与对象](#类与对象)
-      * [对象](#对象)
-         * [objc_object](#objc_object)
-            * [补充知识：OC类的本质](#补充知识oc类的本质)
-         * [找到它？](#找到它)
-         * [isa_t](#isa_t)
-      * [类](#类)
-         * [objc_class](#objc_class)
-            * [说明：isa指针](#说明isa指针)
-            * [引入概念：元类与根类](#引入概念元类与根类)
-         * [isa闭环](#isa闭环)
-            * [补充知识：类方法与实例方法的存储](#补充知识类方法与实例方法的存储)
-   * [isa详解](#isa详解)
-      * [完整定义](#完整定义)
-      * [uintptr_t bits【unsigned long bits】](#uintptr_t-bitsunsigned-long-bits)
-         * [union isa_t](#union-isa_t)
-         * [结构分析](#结构分析)
-            * [补充知识：arm 64与x86_64](#补充知识arm-64与x86_64)
-            * [各个部分存储空间](#各个部分存储空间)
-      * [isa_t的初始化](#isa_t的初始化)
-         * [initIsa](#initisa)
-            * [补充知识：assert()函数](#补充知识assert函数)
-            * [三个参数【Class cls】【bool nonpointer】【bool hasCxxDtor】](#三个参数class-clsbool-nonpointerbool-hascxxdtor)
-            * [补充知识：ULL](#补充知识ull)
-            * [真正初始化](#真正初始化)
-      * [isa诸多用处](#isa诸多用处)
-         * [获取cls地址：ISA() 方法](#获取cls地址isa-方法)
-         * [class方法](#class方法)
-         * [isMemberOfClass&amp;&amp;isKindOfClass](#ismemberofclassiskindofclass)
-   * [objc_class扩充：bits](#objc_class扩充bits)
-      * [class_rw_t与class_ro_t](#class_rw_t与class_ro_t)
-         * [realizeClass方法](#realizeclass方法)
-            * [补充知识：addRootClass和addSubclass](#补充知识addrootclass和addsubclass)
-         * [methodizeClass方法](#methodizeclass方法)
-         * [流程总结](#流程总结)
-      * [(class_rw_t *)(bits &amp; FAST_DATA_MASK)](#class_rw_t-bits--fast_data_mask)
----
+[TOC]
 # 关于我的仓库
+
 - 这篇文章是我为面试准备的iOS基础知识学习中的一篇
 - 我将准备面试中找到的所有学习资料，写的Demo，写的博客都放在了这个仓库里[iOS-Engineer-Interview](https://github.com/KevinAshen/iOS-Engineer-Interview)
 - 欢迎star👏👏
@@ -218,8 +177,8 @@ struct {
       uintptr_t magic             : 6;           //校验          
       uintptr_t weakly_referenced : 1;          // 对象是否曾经或正在被弱引用，如果没有，可以快速释放内存           
       uintptr_t deallocating      : 1;         // 对象是否正在释放内存            
-      uintptr_t has_sidetable_rc  : 1;             // 对象的引用计数太大，无法存储        
-      uintptr_t extra_rc          : 8		// 对象的引用计数超过1，比如10，则此值为9
+      uintptr_t has_sidetable_rc  : 1;             // 是否需要散列表存储引用计数。当extra_rc存储不下时，该值为1        
+      uintptr_t extra_rc          : 8		// 引用计数数量，实际的引用计数减一
 #   define RC_ONE   (1ULL<<56)
 #   define RC_HALF  (1ULL<<7)
 ```

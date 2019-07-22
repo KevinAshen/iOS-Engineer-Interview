@@ -11,17 +11,15 @@
 
 int main(int argc, const char * argv[]) {
     @autoreleasepool {
-        // insert code here...
-        NSLog(@"Hello, World!");
+        NSObject *obj0 = [[NSObject alloc] init];
+        printf("retain count = %ld\n",CFGetRetainCount((__bridge CFTypeRef)(obj0)));
+        NSObject * __weak obj1 = obj0;
+        printf("retain count = %ld\n",CFGetRetainCount((__bridge CFTypeRef)(obj1)));
+        printf("retain count = %ld\n",CFGetRetainCount((__bridge CFTypeRef)(obj0)));
         
-        id test0 = [[Test alloc] init];
-        id test1 = [[Test alloc] init];
-        [test0 setObject:test1];
-        [test1 setObject:test0];
-        
-        NSLog(@"124");
-        
-    
+//        retain count = 1
+//        retain count = 2
+//        retain count = 1
     }
     return 0;
 }

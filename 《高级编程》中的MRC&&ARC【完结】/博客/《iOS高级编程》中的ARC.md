@@ -1,50 +1,4 @@
-目录
-=================
-
-  * [关于我的仓库](#关于我的仓库)
-   * [前言](#前言)
-   * [准备工作](#准备工作)
-      * [内存管理四大原则](#内存管理四大原则)
-   * [ARC规则(p.29 ~ p.65)](#arc规则p29--p65)
-      * [__strong修饰符](#__strong修饰符)
-         * [补充知识：id的本质](#补充知识id的本质)
-         * [超出变量作用域 = 废弃](#超出变量作用域--废弃)
-         * [__strong对象相互赋值](#__strong对象相互赋值)
-            * [方法参数中使用__strong](#方法参数中使用__strong)
-         * [__strong导致的循环引用](#__strong导致的循环引用)
-            * [补充知识：内存泄漏](#补充知识内存泄漏)
-            * [赋值阶段](#赋值阶段)
-            * [失效阶段](#失效阶段)
-            * [为什么test0失效的时候，obj_依然存在](#为什么test0失效的时候obj_依然存在)
-            * [造成结果](#造成结果)
-               * [我要dealloc TestA](#我要dealloc-testa)
-               * [我要dealloc TestB](#我要dealloc-testb)
-            * [对自身的强引用](#对自身的强引用)
-      * [__weak修饰符](#__weak修饰符)
-         * [生成__weak的持有者](#生成__weak的持有者)
-         * [使用__weak的好处](#使用__weak的好处)
-      * [__autoreleasing修饰符](#__autoreleasing修饰符)
-         * [与MRC时比较](#与mrc时比较)
-         * [自动调用](#自动调用)
-         * [weak修饰符与autoreleasing修饰符](#weak修饰符与autoreleasing修饰符)
-         * [autoreleasing修饰符无处不在](#autoreleasing修饰符无处不在)
-      * [具体ARC规则](#具体arc规则)
-         * [规则](#规则)
-         * [dealloc](#dealloc)
-         * [__bridge](#__bridge)
-         * [属性声明与所有权修饰符](#属性声明与所有权修饰符)
-   * [ARC实现(p.65 ~ p.78)](#arc实现p65--p78)
-      * [说明](#说明)
-      * [__strong修饰符实现](#__strong修饰符实现)
-         * [objc_retainAutoreleasedReturnValue与objc_autoreleaseReturnValue](#objc_retainautoreleasedreturnvalue与objc_autoreleasereturnvalue)
-            * [两个不一定](#两个不一定)
-            * [解释](#解释)
-      * [__weak修饰符实现](#__weak修饰符实现)
-         * [objc_storeWeak](#objc_storeweak)
-         * [注册到autoreleasepool](#注册到autoreleasepool)
-      * [__autoreleasing修饰符实现](#__autoreleasing修饰符实现)
----
-
+[TOC]
 # 关于我的仓库
 - 这篇文章是我为面试准备的iOS基础知识学习中的一篇
 - 我将准备面试中找到的所有学习资料，写的Demo，写的博客都放在了这个仓库里[iOS-Engineer-Interview](https://github.com/KevinAshen/iOS-Engineer-Interview)
@@ -348,3 +302,33 @@ objc_msgSend(obj, @selector(init));
 objc_autorelease(obj);
 objc_autoreleasePoolPop(pool);//pool出栈
 ```
+
+# 2019.7.22 更新：关于weak修饰符的一些打印实验
+
+```objective-c
+//在ARC中我们可以使用__bridge来查看应用计数
+
+NSObject *obj0 = [[NSObject alloc] init];
+        printf("retain count = %ld\n",CFGetRetainCount((__bridge CFTypeRef)(obj0))); 
+        NSObject * __weak obj1 = obj0;
+        printf("retain count = %ld\n",CFGetRetainCount((__bridge CFTypeRef)(obj1)));
+        printf("retain count = %ld\n",CFGetRetainCount((__bridge CFTypeRef)(obj0)));
+        
+//        retain count = 1
+//        retain count = 2
+//        retain count = 1
+```
+- 这里我们可以对与weak修饰符有更深的了解，就如书上p.46页上说的
+```objective-c
+id  __weak obj1 = obj0;
+NSLog(@"class = %@",[obj1 class]);
+
+id __weak obj1 = obj0;
+id __autoreleasing tmp = obj1;
+NSLog(@"class = %@",[tmp class]);//实际访问的是注册到自动释放池的对象
+```
+- 这也是为什么我们第二次打印出来的retain count = 2，因为我们等同于将对象注册到了autoreleasepool中，因此引用计数+1
+- 但是我们第三个打印又变回了1，这说明两件事
+  - 不是一使用weak修饰符就会直接注册到pool中，是当你访问的时候才会生成一个__autoreleasing tmp，这也是为什么作者取变量名为tmp
+  - 而接下来就变回1，说明当访问完之后就会直接释放，等同于release了，导致引用计数
+  - 总结一下就是 ，weak修饰符之所以要生成tmp，只是为了防止该对象无人引用，会直接dealloc，因此使用一个tmp维护住它，当访问结束后，这个也就释放了
