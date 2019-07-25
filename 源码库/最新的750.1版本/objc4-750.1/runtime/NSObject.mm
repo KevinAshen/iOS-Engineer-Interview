@@ -1118,6 +1118,7 @@ class AutoreleasePoolPage
 public:
     static inline id autorelease(id obj)
     {
+        printf("static inline id autorelease%p\n", obj);
         assert(obj);
         assert(!obj->isTaggedPointer());
         id *dest __unused = autoreleaseFast(obj);

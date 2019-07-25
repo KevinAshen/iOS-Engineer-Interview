@@ -43,7 +43,9 @@ private:
     cache_key_t _key;
 #else
     cache_key_t _key;
+    //函数名
     MethodCacheIMP _imp;
+    //函数内存地址
 #endif
 
 public:
@@ -933,6 +935,11 @@ public:
     class_rw_t* data() {
         // FAST_DATA_MASK的值是0x00007ffffffffff8UL
         // bits和FAST_DATA_MASK按位与，实际上就是取了bits中的[3,46]位
+        
+//#define RW_REQUIRES_RAW_ISA   (1<<15) 当前类的实例需要 raw isa
+//#define FAST_IS_SWIFT_LEGACY    (1UL<<0) 用于判断 Swift 类
+//#define FAST_HAS_DEFAULT_RR     (1UL<<2) 当前类或者父类含有默认的 retain/release/autorelease/retainCount/_tryRetain/_isDeallocating/retainWeakReference/allowsWeakReference 方法
+//#define FAST_DATA_MASK          0x00007ffffffffff8UL
         return (class_rw_t *)(bits & FAST_DATA_MASK);
     }
     void setData(class_rw_t *newData)
@@ -1133,6 +1140,7 @@ struct objc_class : objc_object {
     cache_t cache;             // formerly cache pointer and vtable
     // class_data_bits_t 相当于是class_rw_t 指针加上rr/alloc标志
     class_data_bits_t bits;    // class_rw_t * plus custom rr/alloc flags
+    //class_data_bits_t 相当于 class_rw_t 指针加上 rr/alloc 的标志。
 
     class_rw_t *data() {
         // 这里的bits就是class_data_bits_t bits;

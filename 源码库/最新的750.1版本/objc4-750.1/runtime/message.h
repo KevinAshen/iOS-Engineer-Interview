@@ -72,6 +72,7 @@ objc_msgSendSuper(void /* struct objc_super *super, SEL op, ... */ )
  * @param op The selector of the method that handles the message.
  * @param ... 
  *   A variable argument list containing the arguments to the method.
+ //包含方法参数的变量参数列表。
  * 
  * @return The return value of the method.
  * 
