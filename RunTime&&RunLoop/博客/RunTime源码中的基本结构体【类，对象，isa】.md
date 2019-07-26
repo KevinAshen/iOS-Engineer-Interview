@@ -300,7 +300,7 @@ isa = newisa;
 
 ![小心心](http://ww2.sinaimg.cn/large/006tNc79ly1g520al4ugaj31cc0rkq56.jpg)
 
-- newisa.shiftcls = (uintptr_t)cls >> 3这句是为了**将 Class 指针中无用的后三位清除减小内存的消耗，因为类的指针要按照字节（8 bits）对齐内存，其指针后三位都是没有意义的 0**。
+- newisa.shiftcls = (uintptr_t)cls >> 3这句是为了**将 Class 指针中无用的后三位清除减小内存的消耗，因为类的指针要按照字节（8 bits）对齐内存，其指针后三位都是没有意义的 0**。这里首先一个OC的指针长度是47，而这里的shiftcls占44个字节，本来
 ## isa诸多用处
 ### 获取cls地址：ISA() 方法
 - 由于现在isa不在只存放地址了，还多了很多附加内容，因此需要一个专门的方法获取shiftcls中的内容
@@ -438,7 +438,9 @@ struct class_ro_t {
 - 可以看到两者内容基本一样，就是class_ro_t里的协议，方法等前面多了个base
 - 这里先注意中class_rw_t定义的class_ro_t是带const修饰符的，是不可变的
 -  下面我们通过class的初始化来研究下这两个都是这么运作的
+
 ### realizeClass方法
+
 ```objective-c
 //精取代码
 static Class realizeClass(Class cls)
@@ -503,7 +505,7 @@ static void addRootClass(Class cls)
     _firstRealizedClass = cls;
 }
 ```
-- 这两个函数的职责是将某个类的子类串成一个列表，大致是superClass.firstSubclass -> subClass1.nextSiblingClass -> subClass2.nextSiblingClass -> ...
+- 这两个方法的职责是将某个类的子类串成一个列表，大致是superClass.firstSubclass -> subClass1.nextSiblingClass -> subClass2.nextSiblingClass -> ...
 - 而存储这些的同样是data，也就是说、以通过class_rw_t，获取到当前类的所有子类
 ### methodizeClass方法
 ```objective-c

@@ -461,6 +461,7 @@ weak_entry_for_referent(weak_table_t *weak_table, objc_object *referent)
 - index = (index+1) & weak_table->mask;是在遇到哈希冲突的时候，就一直往下找下一个位置
 
 ### weak_register_no_lock
+
 ```objective-c
 id 
 weak_register_no_lock(weak_table_t *weak_table, id referent_id, 
@@ -540,6 +541,66 @@ static void append_referrer(weak_entry_t *entry, objc_object **new_referrer)
 - 这里首先是要判断关联数组里有没有空位【关联数组没有使用哈希】，如果关联数组有空位的话，直接插入
 - 没有空位需要使用且是刚好第五个的情况，需要初始化一个weak_referrer_t，将关联数组里的数据先存进去【也就是说不会两个一起用】
 - 接下来通过哈希操作存入
+#### 赋值操作
+
+```objective-c
+weak_referrer_t &ref = entry->referrers[index];
+ref = new_referrer;
+entry->num_refs++;
+```
+
+- 这个赋值语句之前一直让我百思不得其解，现在感觉还是C语言学的不到位呀
+- 首先，现在的index就是我们正确的插入下标，按照我们正常人明显应该这么写
+
+```objective-c
+entry->referrers[index] = new_referrer;
+entry->num_refs++;
+```
+
+- 这是Apple偏偏没有这么写，写了上面这三行
+- 说来惭愧，我之前都觉得weak_referrer_t &ref = entry->referrers[index];明显是错的，哪有初始化一个地址这个说法的
+- 现在我的理解可能依然不太对，我觉得是这样，ref依然是个weak_referrer_t类型的变量，现在通过&取地址符，设置这个变量的地址【这里就觉得很迷了，一个结构体的地址怎么可以变呢？或者理解成ref不是一个实际上的变量，只是一个标志符】
+- 现在我们把referrers[index]赋给了这个地址，也就相当于ref现在就是referrers[index]【自己都觉得解释的很不清楚。。。】
+- 放一段自己做的实验
+```objective-c
+#include <iostream>
+using namespace std;
+
+struct Padd {
+    int a;
+    float b;
+}bucket[10];
+
+int main(int argc, const char * argv[]) {
+    // insert code here...
+    std::cout << "Hello, World!\n";
+    int j = 0;
+    float k = 16;
+    for (Padd &i : bucket) {
+        i.a = j++;
+        i.b = k++;
+    }
+    for (Padd &i : bucket) {
+        cout << i.a << "XXX" << i.b << endl;
+    }
+    
+    Padd *testPadd = (Padd *)malloc(sizeof(Padd));
+    testPadd->a = 99;
+    testPadd->b = 109;
+    Padd &ref = bucket[4];
+    ref = *testPadd;
+    printf("%p\n", &bucket[4]);
+    printf("%p\n", &ref);
+    
+    for (Padd &i : bucket) {
+        cout << i.a << "XXX" << i.b << endl;
+    }
+    
+    return 0;
+}
+
+```
+
 
 ### dealloc后将weak指针置nil【weak_clear_no_lock(weak_table_t *weak_table, id referent_id) 】
 
@@ -641,7 +702,6 @@ objc_loadWeakRetained(id *location)
     table->unlock();
     return result;
 }
-
 ```
 
 - 这过方法里的 if (! obj->rootTryRetain())这一句调用了retain方法，达到了引用计数+1，防止dealloc的作用
@@ -682,10 +742,7 @@ objc_object::rootRetainCount()
 - 哇，真的是好久没看到这么简单易懂的源码，在经历了各色妖魔鬼怪，现在这种跟幼儿读物一样的源码我们读起来完全跟割黄油一样easy，丝滑✌️
 - 也就是说，最后返回的引用计数会是isa中的加上【如果超过限制】，sideTable中的
 
-
-
 # 目前关于weak的疑惑
 
 1. 对于weak_referrer_t该数组，在weak_entry_t已经存了被指对象的地址了，为什么还要在weak_referrer_t通过hash来存放数据，明明只要存放所有weak指针的地址就好了。
 2. 对于DenseMap这个结构，再出现Hash冲突的时候，会往后顺移一位，那么我再通过地址找到value的时候，我怎么知道这个value是不是我要找的value，它之前有没有往后移，怎么执行应用计数+1操作？
-3. 在append_referrer方法中，到底是怎么进行的weak指针插入？weak_referrer_t &ref = entry->referrers[index];ref = new_referrer;entry->num_refs++;什么意思？？

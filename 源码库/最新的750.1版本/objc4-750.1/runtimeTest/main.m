@@ -28,11 +28,13 @@ int main(int argc, const char * argv[]) {
         // insert code here...
         
         NSObject *obj0 = [[NSObject alloc] init];
-        NSLog(@"%p", obj0);
-        NSObject *obj1 __weak = obj0;
-        NSObject *obj3 __weak = obj1;
+        NSLog(@"XXX%p", obj0);
+        id __weak obj1 = obj0;
+//        NSLog(@"%p", obj0);
+//        NSObject *obj1 __weak = obj0;
+//        NSObject *obj3 __weak = obj1;
 //        NSObject *obj2 = obj1;
-//        printf("retain count = %ld\n",CFGetRetainCount((__bridge CFTypeRef)(obj0)));
+//        printf("retain count = %ld\n",CFGetRetainCount((__bridge CFTypeRef d)(obj0)));
 //        printf("retain count = %ld\n",CFGetRetainCount((__bridge CFTypeRef)(obj1)));
 //        printf("retain count = %ld\n",CFGetRetainCount((__bridge CFTypeRef)(obj2)));
         

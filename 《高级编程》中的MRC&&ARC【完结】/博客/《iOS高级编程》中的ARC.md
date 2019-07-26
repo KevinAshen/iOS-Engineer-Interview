@@ -46,7 +46,7 @@ NSObject *obj = [[NSObject alloc] init];
 - 这里我们看p.31最下面这个obj失效的例子
 - 记住这个反应链：
   1. obj超出作用域，obj失效，不再持有该对象
-  2. 失去强引用，对象不在被持有【也就是引用计数从0到1，自动dealloc】
+  2. 失去强引用，对象不在被持有【也就是引用计数从1到0，自动dealloc】
   3. 对象被释放
 - 这里一定要分清，持有者是持有者，对象是对象，两者不是一个东西
 
@@ -332,3 +332,82 @@ NSLog(@"class = %@",[tmp class]);//实际访问的是注册到自动释放池的
   - 不是一使用weak修饰符就会直接注册到pool中，是当你访问的时候才会生成一个__autoreleasing tmp，这也是为什么作者取变量名为tmp
   - 而接下来就变回1，说明当访问完之后就会直接释放，等同于release了，导致引用计数
   - 总结一下就是 ，weak修饰符之所以要生成tmp，只是为了防止该对象无人引用，会直接dealloc，因此使用一个tmp维护住它，当访问结束后，这个也就释放了
+
+# 2019.7.25晚 更新：《Effective Objective-C 2.0》中的ARC
+
+- 绝不应该说引用计数一定是几，只能说执行的操作是递增了该计数还是递减了该计数
+
+## p.121 stringValue
+
+```objective-c
+- (NSString *)stringValue {
+  NSString *str = [NSString alloc] initWithFormat:@"I am this:%@", self];
+  return str;
+}
+```
+
+- 这里提到了返回的str对象其保留计数比期望值要多1（+1 retain count）
+- 我们来试着解读为什么
+- 个人认为这里的意思是stringValue中包装了一个init方法，这个init方法会使该对象引用计数+1，然后当我们返回时，我们需要接收这个返回值，导致引用计数又加了一，也就相当于
+```objective-c
+NSString *str = [NSString alloc] initWithFormat:@"I am this:%@", self];
+NSString *str1 = str;//str1就是接收者，使得该对象又被retain了一次
+```
+- 还是很牵强，但又觉得只能这么理解
+## p.124 三个演示ARC的例子
+1. 这个方法以"new"开头，既然"person"已经使得引用计数+1了【因为alloc】，那么我们不需要做任何操作了，直接返回就行；也就是说，以alloc开头的方法，只要保证返回的对象引用计数+1了就行
+2. 该方法不是以那几个开头，因此返回时自动autorelease
+3. personOne没有注册到pool中，因此超出作用域直接release；personTwo相反
+
+## objc_retainAutoreleasedReturnValue与objc_autoreleaseReturnValue
+### 理解
+- objc_retainAutoreleasedReturnValue会检验调用者是否会对该对象执行retain，如果会的话就不执行autorelease，直接设置标志符
+- objc_autoreleaseReturnValue在检验到标志服后，也不retain了，直接返回对象本身
+- 其实这种情况是最常见的了，方法的返回基本上是不会在autorelease了，这也是为什么上面提到对于方法的返回可以删除autorelease部分，直接饮用计数+1就行
+#### 疑惑
+- 这里我不太理解的是，按道理这样子等于是有两次retain操作，他就算优化也应该减少一次就行了，他怎么就把两次都省了？
+### 打印试验
+```objective-c
+#import "ViewController.h"
+
+__weak id autoObj;
+id stongObj;
+
+@interface ViewController ()
+
+
+@end
+
+@implementation ViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    
+    id __autoreleasing obj = [NSMutableArray arrayWithObject:@"123"];
+    
+    //NSLog(@"%@", obj);
+    autoObj = obj;
+    NSLog(@"1obj:%@", autoObj);
+    
+    
+}
+
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    NSLog(@"2obj:%@", autoObj);
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    NSLog(@"3obj:%@", autoObj);
+}
+
+@end
+
+```
+- 结果为123 123 null
+- 这里说明确实注册到了pool里，因为viewDidAppear和上面两个不在一个runloop里，导致最后打印不出来
+- 我们把__autoreleasing换成strong，结果为123 null null，这里就是执行上面说的优化操作，并没有注册到pool里
+- 太神秘了

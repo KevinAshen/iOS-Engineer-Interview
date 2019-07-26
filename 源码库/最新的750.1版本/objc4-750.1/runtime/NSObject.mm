@@ -484,6 +484,7 @@ objc_loadWeakRetained(id *location)
     SideTable *table;
     
  retry:
+    printf("location:%p\n", location);
     // fixme std::atomic this load
     obj = *location;
     if (!obj) return nil;
@@ -504,7 +505,9 @@ objc_loadWeakRetained(id *location)
         // Fast case. We know +initialize is complete because
         // default-RR can never be set before then.
         assert(cls->isInitialized());
-        if (! obj->rootTryRetain()) {   //rootTryRetain执行了retain操作
+        if (! obj->rootTryRetain()) {
+            
+        //rootTryRetain执行了retain操作
             result = nil;
         }
     }
