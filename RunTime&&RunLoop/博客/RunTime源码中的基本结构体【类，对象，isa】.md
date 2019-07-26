@@ -437,6 +437,7 @@ struct class_ro_t {
 
 - 可以看到两者内容基本一样，就是class_ro_t里的协议，方法等前面多了个base
 - 这里先注意中class_rw_t定义的class_ro_t是带const修饰符的，是不可变的
+
 -  下面我们通过class的初始化来研究下这两个都是这么运作的
 
 ### realizeClass方法
@@ -507,7 +508,9 @@ static void addRootClass(Class cls)
 ```
 - 这两个方法的职责是将某个类的子类串成一个列表，大致是superClass.firstSubclass -> subClass1.nextSiblingClass -> subClass2.nextSiblingClass -> ...
 - 而存储这些的同样是data，也就是说、以通过class_rw_t，获取到当前类的所有子类
+
 ### methodizeClass方法
+
 ```objective-c
 //精取代码
 // 设置类的方法列表、协议列表、属性列表，包括category的方法
@@ -539,7 +542,9 @@ static void methodizeClass(Class cls)
 }
 ```
 - 也就是说是在methodizeClass中，将rw的内容填充完
+
 ### 流程总结
+
 - 编写代码运行后,开始类的方法,成员变量 属性 协议等信息都存放在 const class_ro_t中,运行过程中,会将信息整合,动态创建 class_rw_t,然后会将 class_ro_t中的内容(类的原始信息:方法 属性 成员变量 协议信息) 和 分类的方法 属性 协议 成员变量的信息 存储到 class_rw_t中.并通过数组进行排序,分类方法放在数组的前端,原类信息放在数组的后端.运行初始 objc-class中的 bits是指向 class_ro_t的,bits中的data取值是从class_ro_t中获得,而后创建 class_rw_t,class_rw_t中的 class_ro_t从初始的 class_ro_t中取值,class_rw_t初始化完成后,修改 objc_class中的bits指针指向class_rw_t
 - 所以ro中存储的是编译时就已经决定的原数据，rw才是运行时动态修改的数据。
 
@@ -550,3 +555,32 @@ static void methodizeClass(Class cls)
 - 这句和isa里的非常像，想必应该看了很有感觉了
 - FAST_DATA_MASK0x00007ffffffffff8
 - 这句取出bits中47-3的位置，就是class_rw_t
+
+# 2019.7.26更新
+
+## 对于class_rw_t 以及class_ro_t进一步理解
+
+- 这里其实从名字上就可以理解这两个结构体，rw是指readwrite【可读写】，ro是指readonly【只读】，因此ro是在编译阶段决定的，无法修改，rw是在运行时可以进行添加的
+- 这里可以先补充下方法的添加流程，我们知道类的扩充可以用extension，而extension中的东西也是添加在ro中，在编译阶段决定的；而category是在运行期决定的，添加在rw中
+- 这也解释上面途中，为什么ro中的methods只要一个一维数组就行【因为里面只要保存本类的方法，协议，属性同理】，rw中就得是个二维数组，里面存放着本类以及category中添加的内容，具体是怎么操作的到后面分析category中再说
+
+## 关于cache_t
+
+- cache_t中存储着方法的缓存，通过一个散列表来存储，方便查找【这里不要怕这个散列，后面很多内容都是散列的】
+
+![cache](http://ww2.sinaimg.cn/large/006tNc79ly1g5d1ug621sj30jf05qdgx.jpg)
+
+- 这里要注意，我们把sel【函数名】来进行hash，查找
+- 同时存放时又把sel，与imp都存放了
+
+### 函数调用流程
+
+```objective-c
+CHPerson *person = [[CHPerson alloc] init];
+[person test]
+```
+
+1. 首先通过isa找到person对应的CHPerson类，先查看其中的cache_t里的缓存方法
+2. 如果找不到该test方法，就去查看bits中的rw的methods查找方法【如果找到了，调用，且添加到cache_t中】
+3. 如果在CHPerson里找不到，会查看CHPerson的父类，同样是先cache_t，后bits，如果查找到了，是存放在自己的cache里，不是父类的【注意！】
+4. 最后一直查看父类会到达NSObject根类，如果依然找不到就抛出异常

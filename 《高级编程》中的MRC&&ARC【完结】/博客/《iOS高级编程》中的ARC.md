@@ -1,5 +1,6 @@
 [TOC]
 # 关于我的仓库
+
 - 这篇文章是我为面试准备的iOS基础知识学习中的一篇
 - 我将准备面试中找到的所有学习资料，写的Demo，写的博客都放在了这个仓库里[iOS-Engineer-Interview](https://github.com/KevinAshen/iOS-Engineer-Interview)
 - 欢迎star👏👏
@@ -411,3 +412,39 @@ id stongObj;
 - 这里说明确实注册到了pool里，因为viewDidAppear和上面两个不在一个runloop里，导致最后打印不出来
 - 我们把__autoreleasing换成strong，结果为123 null null，这里就是执行上面说的优化操作，并没有注册到pool里
 - 太神秘了
+
+# 2019.7.26更新 **至是疑始释**
+
+- 引用一波明史里朱棣了解到建文帝下落后的描述，正好解释下现在的心情
+- 在和哲神交流一波后，真的是突然对很多东西豁然开朗，贴下哲神的博客，接下来他也会更新runtime相关的文章[咚个里个呛](https://blog.csdn.net/qq_42347755?utm_source=feed)
+
+## 关于autorelease
+
+- 其实整个引用计数管理都很清楚明白，retain，release，都简单不过了，只有autorelease比较抽象，难以理解
+- 我们这里先想明白，在ARC中，我们不再需要显式调用这几个方法
+- autorelease很多时候是为了那些不以alloc开头的方法，他们的要求是自己生成了但自己不持有，因此要使用autorelease，注册到pool中
+```objective-c
++ (NSString *)stringValue {
+  NSString *str = [NSString alloc] initWithFormat:@"I am this:%@", self];
+  return str;
+}
+
+NSString *str1 = [NSString stringValue];
+```
+- 在这种情况下，str1明显不应该持有返回的对象，而如果方法里直接就返回了，明显会导致持有了
+- 因此这个方法返回的实际上是[str autorelease]
+- 这里我们可以这么理解，如果我们直接返回对象，和[str autorelease]都会使得引用计数+1了，区别在于
+  1. NSString *str1 = str，将控制权给了str1，由他控制是否release
+  2. NSString *str1 = [str autorelease]，将控制权给了pool，由它决定什么时候release
+- 且这个时候最开始的str已经超出了作用域，release了
+- 这也就是为什么说只比期望值多了一，期望值是initWithFormat方法里加上的，那个多一就是被pool引用了
+
+## 疑点
+
+- 目前的疑点还是在于小蓝书的前后不一致，或者是理解还不到位
+- 在p125下面提到autorelease与retain都是多余的，如果删除了这两步操作，显然在执行完赋值操作以后，引用计数不变，放这里就是和init时候一样就对了，即与期望值一样了
+- 而后面又说，规定从方法中返回的对象其引用计数都比期望值多一就好
+- 这个多的一要么是str1 retain了，要么是str autorelease的，如果都删去，还怎么多这个1？
+- p126的优化同样也是这个道理，如果两个方法都没走else，也就是和期望值一样，这里前后矛盾让还是无法好好理解
+- 所以这里我还是觉得，引入持有这个概念就是双刃剑，虽然前期提到了阅读性，但后面直接导致一直要思考谁持有谁，谁被释放了，不如一直研究对象的引用计数
+
