@@ -27,9 +27,12 @@ int main(int argc, const char * argv[]) {
     @autoreleasepool {
         // insert code here...
         
-        NSObject *obj0 = [[NSObject alloc] init];
-        NSLog(@"XXX%p", obj0);
-        id __weak obj1 = obj0;
+//        NSObject *obj0 = [[NSObject alloc] init];
+//        //NSLog(@"XXX%p", obj0);
+//        id __weak obj1 = obj0;
+        
+        Person *person = [[Person alloc] init];
+        [person say];
 //        NSLog(@"%p", obj0);
 //        NSObject *obj1 __weak = obj0;
 //        NSObject *obj3 __weak = obj1;

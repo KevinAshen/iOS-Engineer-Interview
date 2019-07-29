@@ -279,6 +279,7 @@ template <HaveOld haveOld, HaveNew haveNew,
 static id 
 storeWeak(id *location, objc_object *newObj)
 {
+    
     assert(haveOld  ||  haveNew);
     if (!haveNew) assert(newObj == nil);
 
@@ -696,7 +697,7 @@ class AutoreleasePoolPage
     // 保存了当前页所在的线程(一个AutoreleasePoolPage属于一个线程，一个线程中可以有多个AutoreleasePoolPage)
     pthread_t const thread; // 8字节 当前pool所处的线程
     // AutoreleasePoolPage是以双向链表的形式连接
-    //不是栈
+
     // 前一个节点
     AutoreleasePoolPage * const parent; // 8字节
     // 后一个节点
@@ -706,6 +707,8 @@ class AutoreleasePoolPage
 
     // SIZE-sizeof(*this) bytes of contents follow
     //固定的内容占56字节，之外的可以放入page中的对象地址
+    
+    
 
     static void * operator new(size_t size) {
         return malloc_zone_memalign(malloc_default_zone(), SIZE, SIZE);
@@ -2277,6 +2280,7 @@ void arr_init(void)
 }
 
 - (id)performSelector:(SEL)sel {
+    printf("(id)performSelector:(SEL)sel:%p", sel);
     if (!sel) [self doesNotRecognizeSelector:sel];
     return ((id(*)(id, SEL))objc_msgSend)(self, sel);
 }

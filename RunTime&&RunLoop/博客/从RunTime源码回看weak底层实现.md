@@ -337,6 +337,7 @@ struct weak_entry_t {
 - 讨论完这些问题之后，我们终于可以开始研究weak调用的方法了
 
 # weak相关的方法
+
 ## objc_initWeak(id *location, id newObj)
 
 ```objective-c
@@ -601,7 +602,6 @@ int main(int argc, const char * argv[]) {
 
 ```
 
-
 ### dealloc后将weak指针置nil【weak_clear_no_lock(weak_table_t *weak_table, id referent_id) 】
 
 ```objective-c
@@ -742,7 +742,13 @@ objc_object::rootRetainCount()
 - 哇，真的是好久没看到这么简单易懂的源码，在经历了各色妖魔鬼怪，现在这种跟幼儿读物一样的源码我们读起来完全跟割黄油一样easy，丝滑✌️
 - 也就是说，最后返回的引用计数会是isa中的加上【如果超过限制】，sideTable中的
 
-# 目前关于weak的疑惑
+# 2019年7.27更新：为什么weak_entries中referrers要使用hash？
 
-1. 对于weak_referrer_t该数组，在weak_entry_t已经存了被指对象的地址了，为什么还要在weak_referrer_t通过hash来存放数据，明明只要存放所有weak指针的地址就好了。
-2. 对于DenseMap这个结构，再出现Hash冲突的时候，会往后顺移一位，那么我再通过地址找到value的时候，我怎么知道这个value是不是我要找的value，它之前有没有往后移，怎么执行应用计数+1操作？
+- 我们来理一理思路，在weak_entries中，已经有referent存储了被指对象的地址，referrers中存放的是所有指向该对象的weak指针的地址
+- 而我们使用了hash的方式存储，我们将weak指针的地址hash出一个index来存放weak指针的地址
+- 有没有觉得怪怪的？一般来说我们用key【一般是对象地址】哈希出一个index作为存放地址，存放的是对象本身，也就是value
+- 但在这里，等于就是用key存key了。因此我之前以为这里没必要hash，因为假如我们希望查询到该weak指针的地址，我们得拿weak指针的地址去找。。。
+- 但其实这里还是因为没有很好的理解他的意义，这张表不是为了查找weak指针的地址而存在的，而是要记录指向某一对象的所有weak指针而存在的，其存在的意义就是在记录上有本身
+- 我们查找某一weak指针往往基本上就是为了把记录这个东西
+- 在这张表上删除，我们的目的在于记录本身，而不是其value本身，以上。
+

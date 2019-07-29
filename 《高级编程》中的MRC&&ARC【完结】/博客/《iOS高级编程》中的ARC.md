@@ -341,10 +341,12 @@ NSLog(@"class = %@",[tmp class]);//实际访问的是注册到自动释放池的
 ## p.121 stringValue
 
 ```objective-c
-- (NSString *)stringValue {
-  NSString *str = [NSString alloc] initWithFormat:@"I am this:%@", self];
++ (NSString *)stringValue {
+  NSString *str = [[NSString alloc] initWithFormat:@"I am this:%@", self];
   return str;
 }
+
+NSString *str1 = [NSString stringValue];
 ```
 
 - 这里提到了返回的str对象其保留计数比期望值要多1（+1 retain count）
@@ -361,6 +363,7 @@ NSString *str1 = str;//str1就是接收者，使得该对象又被retain了一�
 3. personOne没有注册到pool中，因此超出作用域直接release；personTwo相反
 
 ## objc_retainAutoreleasedReturnValue与objc_autoreleaseReturnValue
+
 ### 理解
 - objc_retainAutoreleasedReturnValue会检验调用者是否会对该对象执行retain，如果会的话就不执行autorelease，直接设置标志符
 - objc_autoreleaseReturnValue在检验到标志服后，也不retain了，直接返回对象本身
@@ -448,3 +451,9 @@ NSString *str1 = [NSString stringValue];
 - p126的优化同样也是这个道理，如果两个方法都没走else，也就是和期望值一样，这里前后矛盾让还是无法好好理解
 - 所以这里我还是觉得，引入持有这个概念就是双刃剑，虽然前期提到了阅读性，但后面直接导致一直要思考谁持有谁，谁被释放了，不如一直研究对象的引用计数
 
+# 解
+
+- 其实理解到最后就是ARC时代，为了简化掉多余的操作，所有的运行都是以期望值来决定
+- 就以上面这个例子一开始str持有对象，后来理应pool持有对象，最后应该是str1持有对象
+- 但从我们的实际需求来说，我们只需要让str1持有对象，因此只要return str，不进行retain之类的操作，就OK了
+- 从这个角度出发，可以便于理解这些简化

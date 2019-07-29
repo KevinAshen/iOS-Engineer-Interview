@@ -107,6 +107,7 @@ struct __AtAutoreleasePool {
 - 先来研究下这个POOL_BOUNDARY是起什么作用的
 
 ## 哨兵对象POOL_BOUNDARY详解
+
 - POOL_BOUNDARY直译过来就是POOL的边界
 - 首先这个POOL_BOUNDARY就是nil，它的作用是隔开page中的对象
 - 假如我们执行了以下代码
@@ -245,8 +246,9 @@ pool被分成一个双向指针构成的pages。pages在必要的时候被添加
      objects are stored. 
 **********************************************************************/
 ```
-- 这里就讲清楚了toekn本质就是指向POOL_BOUNDARY的指针，也就是每次push，pop之间的抬头
+- 这里就讲清楚了toekn本质就是指向POOL_BOUNDARY的指针，存储着每次push时插入的POOL_BOUNDARY的地址
 - 请注意，只有第一次push的时候会在page中插入一个POOL_BOUNDARY【或者是中间page刚好满了，要使用新的page了】，并不是page的开头都一定是POOL_BOUNDARY
+- 具体是怎么做到的，请注意下push方法返回的dest，一直查看下他的来源，你会有收获的
 
 ## releaseUntil
 

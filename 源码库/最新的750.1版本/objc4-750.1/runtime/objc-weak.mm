@@ -138,7 +138,7 @@ static void append_referrer(weak_entry_t *entry, objc_object **new_referrer)
     }
 
     assert(entry->out_of_line());
-
+    
     if (entry->num_refs >= TABLE_SIZE(entry) * 3/4) {
         return grow_refs_and_insert(entry, new_referrer);
     }
@@ -157,8 +157,13 @@ static void append_referrer(weak_entry_t *entry, objc_object **new_referrer)
     if (hash_displacement > entry->max_hash_displacement) {
         entry->max_hash_displacement = hash_displacement;
     }
+    
+    //找到正确的index
+    //entry->referrers[index] = new_referrer;
     weak_referrer_t &ref = entry->referrers[index];
     ref = new_referrer;
+    //fixme waste time
+    
     entry->num_refs++;
 }
 
@@ -320,6 +325,7 @@ weak_entry_for_referent(weak_table_t *weak_table, objc_object *referent)
 
     if (!weak_entries) return nil;
 
+    //entry 原本位置
     size_t begin = hash_pointer(referent) & weak_table->mask;
     size_t index = begin;
     size_t hash_displacement = 0;
@@ -500,6 +506,8 @@ weak_clear_no_lock(weak_table_t *weak_table, id referent_id)
         referrers = entry->inline_referrers;
         count = WEAK_INLINE_COUNT;
     }
+    //weak就存在referrers
+    
     
     for (size_t i = 0; i < count; ++i) {
         objc_object **referrer = referrers[i];
@@ -519,5 +527,6 @@ weak_clear_no_lock(weak_table_t *weak_table, id referent_id)
     }
     
     weak_entry_remove(weak_table, entry);
+    //entry删除 其实weak指针还在
 }
 

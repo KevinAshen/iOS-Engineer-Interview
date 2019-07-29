@@ -7,11 +7,14 @@
 //
 
 #import <Foundation/Foundation.h>
+#include "Student.h"
 
 int main(int argc, const char * argv[]) {
     @autoreleasepool {
-        NSObject *obj = [[NSObject alloc] init];
-        id __weak obj1 = obj;
+//        Student *newStudent = [[Student alloc] init];
+//        [newStudent dayin];
+        Person *newPerson = [[Person alloc] init];
+        [newPerson dayin];
     }
     return 0;
 }

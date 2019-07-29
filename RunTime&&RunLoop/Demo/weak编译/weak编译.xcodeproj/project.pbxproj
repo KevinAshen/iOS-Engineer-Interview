@@ -7,7 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0404653622EEEA6200E3B6B3 /* Student.m in Sources */ = {isa = PBXBuildFile; fileRef = 0404653522EEEA6200E3B6B3 /* Student.m */; };
+		0404653922EF1DED00E3B6B3 /* WTL.m in Sources */ = {isa = PBXBuildFile; fileRef = 0404653822EF1DED00E3B6B3 /* WTL.m */; };
 		04A2A78522DF1F5F009FBC13 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 04A2A78422DF1F5F009FBC13 /* main.m */; };
+		04FE1A4422EED361002C3D2F /* Person.m in Sources */ = {isa = PBXBuildFile; fileRef = 04FE1A4322EED361002C3D2F /* Person.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -23,8 +26,14 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0404653422EEEA6200E3B6B3 /* Student.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Student.h; sourceTree = "<group>"; };
+		0404653522EEEA6200E3B6B3 /* Student.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Student.m; sourceTree = "<group>"; };
+		0404653722EF1DED00E3B6B3 /* WTL.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WTL.h; sourceTree = "<group>"; };
+		0404653822EF1DED00E3B6B3 /* WTL.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WTL.m; sourceTree = "<group>"; };
 		04A2A78122DF1F5F009FBC13 /* weak编译 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "weak编译"; sourceTree = BUILT_PRODUCTS_DIR; };
 		04A2A78422DF1F5F009FBC13 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		04FE1A4222EED361002C3D2F /* Person.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Person.h; sourceTree = "<group>"; };
+		04FE1A4322EED361002C3D2F /* Person.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Person.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +67,12 @@
 			isa = PBXGroup;
 			children = (
 				04A2A78422DF1F5F009FBC13 /* main.m */,
+				04FE1A4222EED361002C3D2F /* Person.h */,
+				04FE1A4322EED361002C3D2F /* Person.m */,
+				0404653422EEEA6200E3B6B3 /* Student.h */,
+				0404653522EEEA6200E3B6B3 /* Student.m */,
+				0404653722EF1DED00E3B6B3 /* WTL.h */,
+				0404653822EF1DED00E3B6B3 /* WTL.m */,
 			);
 			path = "weak编译";
 			sourceTree = "<group>";
@@ -118,7 +133,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				04FE1A4422EED361002C3D2F /* Person.m in Sources */,
 				04A2A78522DF1F5F009FBC13 /* main.m in Sources */,
+				0404653622EEEA6200E3B6B3 /* Student.m in Sources */,
+				0404653922EF1DED00E3B6B3 /* WTL.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

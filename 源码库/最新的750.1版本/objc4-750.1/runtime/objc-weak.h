@@ -82,6 +82,7 @@ struct weak_entry_t {
     union {
         struct {
             weak_referrer_t *referrers; //可变数组,里面保存着所有指向这个对象的弱引用的地址。当这个对象被释放的时候，referrers里的所有指针都会被设置成nil。
+            //哈希的目的是清除一个weak指针
             //指向 referent 对象的 weak 指针数组
             uintptr_t        out_of_line_ness : 2; //这里标记是否超过内联边界, 下面会提到
             uintptr_t        num_refs : PTR_MINUS_2; //数组中已占用的大小
