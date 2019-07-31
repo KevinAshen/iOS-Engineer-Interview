@@ -166,12 +166,14 @@
 - [SEL、IMP和Class](https://www.jianshu.com/p/aff083ec3203)
 - [iOS中的SEl和IMP到底是什么](https://www.jianshu.com/p/4a09d5ebdc2c)
 - [类型编码（Type Encodings）【苹果官方文章翻译】](https://blog.csdn.net/iosswift/article/details/42361233)
-- []()
-- []()
-- []()
-- []()
-- []()
-- []()
-- []()
-- []()
+- [iOS多线程-各种线程锁的简单介绍](https://www.jianshu.com/p/35dd92bcfe8c)
+- [iOS 代理 重定向消息 forwardInvocation](https://www.cnblogs.com/treejohn/p/3596531.html)
+- [iOS 进程间通信翻译](https://www.jianshu.com/p/c0893c93f2cb)
+- [Inter-Process Communication](https://nshipster.com/inter-process-communication/)
+- [iOS中消息转发机制及工程应用](https://blog.csdn.net/cewei711/article/details/53189620)
+- [『ios』NSInvocation NSMethodSignature 全面解析](https://www.jianshu.com/p/20d7d81438dd)
+- [『ios』-objc_msgSend + 消息转发 全面解析（二）](https://www.jianshu.com/p/b2e620684e3f)
+- [OC学习Runtime之消息传递,消息转发机制](https://blog.csdn.net/u014410695/article/details/48650965)
+
+
 

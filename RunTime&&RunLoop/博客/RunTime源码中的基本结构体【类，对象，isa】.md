@@ -573,7 +573,7 @@ static void methodizeClass(Class cls)
 - 这里要注意，我们把sel【函数名】来进行hash，查找
 - 同时存放时又把sel，与imp都存放了
 
-### 函数调用流程
+## 方法调用流程
 
 ```objective-c
 CHPerson *person = [[CHPerson alloc] init];

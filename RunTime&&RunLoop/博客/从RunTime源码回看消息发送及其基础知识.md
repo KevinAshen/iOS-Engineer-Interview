@@ -8,8 +8,8 @@
 
 # 前言
 
-- 正如前面文章讲到《高级编程》中的源码解析大多伪代码，且大多已经落后于当前版本，因此在研读了RunTime源码后再来研究《高级编程》中的ARC里提到的操作
-- 本文只探讨RunTime中的实现部分，RunLoop中的部分暂不深入
+- 本文为消息转发的先导文章
+- 涉及sel，imp的作用，消息发送大概机制
 
 # 准备工作
 
@@ -94,7 +94,8 @@ int main(int argc, const char * argv[]) {
 
 ![28653839_1361282379yvAk](http://ww2.sinaimg.cn/large/006tNc79ly1g5h0h8zl0dj30hl09fjs5.jpg)
 
-### const char *types
+## const char *types
+
 - 为了协助运行时系统，编译器用字符串为每个方法的返回值和参数类型和方法选择器编码。使用的编码方案在其他情况下也很有用，所以它是public 的，可用于@encode() 编译器指令。当给定一个类型参数，返回一个编码类型字符串。类型可以是一个基本类型如int，指针，结构或联合标记，或任何类型的类名，事实上，都可以作为C sizeof() 运算符的参数。这个机制也是为了提高Runtime的效率.
 - 编码翻译表：
 
@@ -168,5 +169,32 @@ char *buf3 = @encode(Rectangle);
 //imp3:0x7fff7c89c300
 ```
 
-- 其中eat，eat:，drink:只有eat方法是我有写实现，也只有这个方法的imp是确实存在的【imp1:0x100000be0】，而剩下两个的imp都指向同一个地址【0x7fff7c89c300】，这些数据和sel一样，不管运行几次都是一样的
+- 其中eat，eat:，drink:只有eat方法是我有写实现，也只有这个方法的imp是确实存在的【imp1:0x100000be0】，而剩下两个的imp都指向同一个地址【0x7fff7c89c300】，这些数据和sel一样，不管运行几次都是一样的。但在不同的电脑上结果还是不一样，也就是说，虽然0x7fff7c89c300显然是一个特殊的地址，但也不是写死规定好的
 - 因此与sel这样只是生成一个特殊ID不一样，imp是必须要该方法存在【函数存在】才能生成的【也就是方法必须有实现】
+
+# 在cache以及rw结构体中方法存储的区别
+
+- 方法缓存在cache中的bucket_t结构体里
+- 方法存储在class_rw_t中的method_array_t二维数组里
+
+```objective-c
+//bucket_t
+struct bucket_t {
+	cache_key_t _key;
+	//sel
+	MethodCacheIMP _imp;
+	//函数内存地址
+}
+
+//method_t
+struct method_t {
+    SEL name;
+    const char *types;
+    MethodListIMP imp;
+};
+```
+
+- 这里就有让人非常迷惑的一件事，在方法列表里我们要存储sel，types，imp；而缓存的时候只要sel，imp
+- 这里我也查了很多资料，没能找到解释
+- 其实这也关乎类型编码types到底是干什么的，查来查去只找到可以提高运行速度
+- 所以这里猜测types只是辅助提高运行速度，而Apple缓存方法时，存储这个内容的消耗已经超过了其带来的加速【我知道很扯。。。】
