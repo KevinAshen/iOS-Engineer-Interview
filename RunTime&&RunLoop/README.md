@@ -1,28 +1,4 @@
-目录
-=================
-
-   * [前言](#前言)
-   * [类，对象，isa](#类对象isa)
-      * [难点](#难点)
-         * [isa闭环](#isa闭环)
-         * [isa_t](#isa_t)
-      * [我的博客](#我的博客)
-   * [autoreleasepool](#autoreleasepool)
-      * [难点](#难点-1)
-         * [AutoreleasePoolPage](#autoreleasepoolpage)
-         * [push](#push)
-         * [pop](#pop)
-         * [token](#token)
-      * [我的博客](#我的博客-1)
-   * [weak底层实现](#weak底层实现)
-      * [难点](#难点-2)
-      * [我的博客](#我的博客-2)
-   * [正确打开【学习】姿势](#正确打开学习姿势)
-      * [类，对象，isa](#类对象isa-1)
-      * [autoreleasepool](#autoreleasepool-1)
-      * [weak底层实现](#weak底层实现-1)
-   * [参考文章](#参考文章)
----
+[TOC]
 
 # 前言
 
@@ -79,6 +55,26 @@
 - 本文主要研究weak的底层实现，先研究其中涉及到的SideTable里的数据模型，之后探究weak中相关的方法
 - 链接：[从RunTime源码回看weak底层实现](https://github.com/KevinAshen/iOS-Engineer-Interview/blob/master/RunTime&&RunLoop/%E5%8D%9A%E5%AE%A2/%E4%BB%8ERunTime%E6%BA%90%E7%A0%81%E5%9B%9E%E7%9C%8Bweak%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0.md)
 
+# 消息发送及相关知识
+## 难点
+- 个人认为这里比较奇怪的只有类型编码这一块，SEL，IMP这些其实挺好理解的
+- 这一块主要是为了下面学习消息转发打基础，学一些基础知识
+
+## 我的博客
+- 本文为消息转发的先导文章，涉及sel，imp的作用，消息发送大概机制
+- 链接：[从RunTime源码回看消息发送及其基础知识.md](https://github.com/KevinAshen/iOS-Engineer-Interview/blob/master/RunTime&&RunLoop/博客/从RunTime源码回看消息发送及其基础知识.md)
+
+# 消息转发机制
+
+## 难点
+- 第一第二种方法都很好理解，无非就是动态添加方法或者让其他类去执行该方法
+- 第三种涉及到了NSMethodSignature以及NSInvocation这两个概念，需要认真理解下
+- 消息转发另外比较重要的就是如何去理解它
+
+## 我的博客
+- 本文为消息转发的先导文章，涉及sel，imp的作用，消息发送大概机制
+- 链接：[从RunTime源码回看消息转发机制【三次拯救】.md](https://github.com/KevinAshen/iOS-Engineer-Interview/blob/master/RunTime&&RunLoop/%E5%8D%9A%E5%AE%A2/%E4%BB%8ERunTime%E6%BA%90%E7%A0%81%E5%9B%9E%E7%9C%8B%E6%B6%88%E6%81%AF%E8%BD%AC%E5%8F%91%E6%9C%BA%E5%88%B6%E3%80%90%E4%B8%89%E6%AC%A1%E6%8B%AF%E6%95%91%E3%80%91.md)
+
 # 正确打开【学习】姿势
 ## 类，对象，isa
 - 这部分虽然零零碎碎看了很多文章，真正特别有用的是这几篇
@@ -103,6 +99,17 @@
 - [runtime(三) weak_table_t](https://www.jianshu.com/p/7eb4d291d6d6)
 - 如果对于DenseMap还感兴趣的旁友可以瞅瞅[llvm中的数据结构及内存分配策略 - DenseMap](https://blog.csdn.net/dashuniuniu/article/details/80043852)
 - [浅谈iOS之weak底层实现原理](https://www.jianshu.com/p/f331bd5ce8f8)这篇其实是我最先找到的博客，可惜跟我的源码长得不太一样，就打入冷宫了，后来瞅瞅其实还不错
+
+## 消息发送及相关知识
+- 这一块还是涉及到了isa方面的知识，网上很多文章对isa的分析都不对，还是远古版本，因此没找到什么特别好的文章
+- [iOS中的SEl和IMP到底是什么](https://www.jianshu.com/p/4a09d5ebdc2c)这一篇看似短小精悍，但讲的很清楚，要点都在里面了
+
+## 消息转发机制
+
+- 这一块还是上面说的NSMethodSignature以及NSInvocation这两个概念比较抽象，不好懂
+- 对这块分析的比较好的[『ios』-objc_msgSend + 消息转发 全面解析（二）](https://www.jianshu.com/p/b2e620684e3f)以及[『ios』NSInvocation NSMethodSignature 全面解析](https://www.jianshu.com/p/20d7d81438dd)
+- 对于消息转发的意义，要看[iOS中消息转发机制及工程应用](https://blog.csdn.net/cewei711/article/details/53189620)
+
 # 参考文章
 **源码面前，了无秘密**
 
