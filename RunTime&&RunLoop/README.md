@@ -181,6 +181,8 @@
 - [『ios』NSInvocation NSMethodSignature 全面解析](https://www.jianshu.com/p/20d7d81438dd)
 - [『ios』-objc_msgSend + 消息转发 全面解析（二）](https://www.jianshu.com/p/b2e620684e3f)
 - [OC学习Runtime之消息传递,消息转发机制](https://blog.csdn.net/u014410695/article/details/48650965)
+- [iOS底层原理总结 - RunLoop](https://www.jianshu.com/p/de752066d0ad)
+- [RunLoop的深入学习](https://puqin2333.github.io/2018/03/13/RunLoop的深入学习)
 
 
 

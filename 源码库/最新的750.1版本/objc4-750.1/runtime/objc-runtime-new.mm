@@ -5716,14 +5716,21 @@ addMethod(Class cls, SEL name, IMP imp, const char *types, bool replace)
 
     method_t *m;
     if ((m = getMethodNoSuper_nolock(cls, name))) {
+        //getMethodNoSuper_nolock从类的方法列表里查找，找到就判断传进来的replace
         // already exists
         if (!replace) {
+            //replace为NO就直接返回找到的IMP
             result = m->imp;
         } else {
+            //replace为YES就在方法列表里，将m的IMP设置成新的IMP
+            //返回值还是原来方法的IMP
             result = _method_setImplementation(cls, m, imp);
         }
     } else {
         // fixme optimize
+        //如果找不到，说明真正需要添加一个方法，就要新建method_list_t，给他的第一个方法添加成该方法
+        //这种方式返回的IMP为nil
+        //此时就是真正的动态添加方法
         method_list_t *newlist;
         newlist = (method_list_t *)calloc(sizeof(*newlist), 1);
         newlist->entsizeAndFlags = 
@@ -6260,11 +6267,11 @@ Class objc_allocateClassPair(Class superclass, const char *name,
                              size_t extraBytes)
 {
     Class cls, meta;
-
     mutex_locker_t lock(runtimeLock);
-
     // Fail if the class name is in use.
+    // 判断类名是否已经被使用
     // Fail if the superclass isn't kosher.
+    // 判断父类是否合法
     if (getClass(name)  ||  !verifySuperclass(superclass, true/*rootOK*/)) {
         return nil;
     }
