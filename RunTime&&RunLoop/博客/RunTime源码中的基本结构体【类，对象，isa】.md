@@ -584,3 +584,26 @@ CHPerson *person = [[CHPerson alloc] init];
 2. 如果找不到该test方法，就去查看bits中的rw的methods查找方法【如果找到了，调用，且添加到cache_t中】
 3. 如果在CHPerson里找不到，会查看CHPerson的父类，同样是先cache_t，后bits，如果查找到了，是存放在自己的cache里，不是父类的【注意！】
 4. 最后一直查看父类会到达NSObject根类，如果依然找不到就抛出异常
+
+# 2019.8.3更新【ivar】
+- 想不到这篇文章越写越长，也不想重新开博客了，就越写越多
+- 这部分主要涉及了property和ivar以及Non Fragile ivars
+## property和ivar
+- 在刚学习OC的时候我们就了解过了属性与实例变量的区别
+- property = ivar + get + set
+- 下面我们探讨两者真正的关系
+### ivar
+- 在class_ro_t结构体中，有const ivar_list_t * ivars;
+- 这里存储着所有ivar【实例变量】
+```objective-c
+//ivar_t
+struct ivar_t {
+    int32_t *offset;
+    const char *name;
+    const char *type;
+    uint32_t alignment_raw;
+    uint32_t size;
+};
+```
+
+- 当我们编译的时候会决定

@@ -13,40 +13,39 @@ using namespace std;
 
 class Solution {
 public:
-    bool Find(int target, vector<vector<int> > array) {
-        if (array.empty()) {
-            return false;
+    void replaceSpace(char *str,int length) {
+        int num = 0;
+        int i = 0;
+        while (str[i] != '\0') {
+            if (str[i++] ==' ') {
+                num++;
+            }
         }
-        if (array[0].empty()) {
-            return false;
-        }
-        int m = 0;
-        int n = array[0].size() - 1;
-        while (target != array[m][n]) {
-            printf("OLD:m:%d n:%d\n", m, n);
-            if (target > array[m][n]) {
-                m++;
+        int before = length - 1;
+        int after = length - 1 + 2 * num;
+        str[after + 1] = '\0';
+        while (before != -1) {
+            if (str[before] == ' ') {
+                before--;
+                str[after--] = '0';
+                str[after--] = '2';
+                str[after--] = '%';
             } else {
-                n--;
-            }
-            printf("NEW:m:%d n:%d\n", m, n);
-            if (m > array.size() - 1 || n < 0) {
-                
-                return false;
+                str[after--] = str[before--];
             }
         }
-        return true;
+        str[length + 2 * num] = '\0';
     }
 };
 
 int main(int argc, const char * argv[]) {
     // insert code here...
     std::cout << "Hello, World!\n";
-    
-//    Solution f;
-//    vector<vector<int> > arr = {{1, 2, 8, 9}, {2, 4, 9, 12}, {4, 7, 10, 13}, {6, 8, 11, 15}};
-//    printf("结果：%d\n", f.Find(9, arr));
-    vector<vector<int>> a = {};
-    printf("%d", a[0].empty());
+
+    Solution f;
+    char a[] = " we are jkw";
+    f.replaceSpace(a, 11);
+    printf("%s", a);
+//    cout << a << endl;
     return 0;
 }

@@ -43,7 +43,7 @@ private:
     cache_key_t _key;
 #else
     cache_key_t _key;
-    //函数名
+    //函数名 SEL
     MethodCacheIMP _imp;
     //函数内存地址
 #endif
@@ -59,7 +59,7 @@ public:
 
 
 struct cache_t {
-    struct bucket_t *_buckets;
+    struct bucket_t *_buckets;//哈希表
     mask_t _mask;
     mask_t _occupied;
 
@@ -222,9 +222,11 @@ struct entsize_list_tt {
 
 
 struct method_t {
-    SEL name;
-    const char *types;
-    MethodListIMP imp;
+    //eat:(NSInterger) subclass
+    //eat:(NSString *) superclass
+    SEL name;//方法ID @selector（eat：：）
+    const char *types;//类型编码
+    MethodListIMP imp;//函数入口 imp
 
     struct SortBySELAddress :
         public std::binary_function<const method_t&,
@@ -296,6 +298,7 @@ typedef uintptr_t protocol_ref_t;  // protocol_t *, but unremapped
 #define PROTOCOL_FIXED_UP_MASK (PROTOCOL_FIXED_UP_1 | PROTOCOL_FIXED_UP_2)
 
 struct protocol_t : objc_object {
+    //一个协议可以声明对象方法，类方法，以及对象属性和类属性
     const char *mangledName;
     struct protocol_list_t *protocols;
     method_list_t *instanceMethods;
@@ -570,6 +573,9 @@ struct class_ro_t {
     protocol_list_t * baseProtocols;
     // 变量列表
     const ivar_list_t * ivars;
+    //属性 = 实例变量 + get + set
+    //属性 = nameLabel
+    //变量 = _nameLebel
 
     const uint8_t * weakIvarLayout;
     // 属性列表
