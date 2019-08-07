@@ -5,7 +5,7 @@ using namespace std;
 
 class Solution {
 public:
-	void replaceSpace(char *str,int length) {
+	void replaceSpace(char *str, int length) {
 		int num = 0;
 		int i = 0;
 		while (str[i] != '\0') {
@@ -15,7 +15,7 @@ public:
 		}
 		int before = length - 1;
 		int after = length - 1 + 2 * num;
-		str[after + 1] = '\0';
+		//str[after + 1] = '\0';
 		while (before != -1) {
 			if (str[before] == ' ') {
 				before--;

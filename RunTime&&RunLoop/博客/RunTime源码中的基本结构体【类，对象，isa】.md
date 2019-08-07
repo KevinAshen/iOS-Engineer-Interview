@@ -606,4 +606,53 @@ struct ivar_t {
 };
 ```
 
-- 当我们编译的时候会决定
+- 当我们编译的时候会决定ro结构体，也就是会将变量确定下来
+
+### property
+
+- 在ro，rw中都会有属性列表，查看property_t结构体
+
+```objective-c
+struct property_t {
+    const char *name;
+    const char *attributes;
+};
+```
+
+- 这里我们可以看到存储一个属性的时候，我们只存储了其name和属性关键字，其余信息都不知道
+
+### 两者关系
+
+- 在编译时，对于我们的属性，其实会做两次添加，假设我们写了一个nameLabel属性，第一次是在属性列表里添加，内容为nameLabel，之后会在ivars中同步添加，加入名为_nameLabel的变量
+- 因此在真正访问的时候，其实真正访问到的还是变量
+- 与此同时，会把属性自动生成的set，get方法写入方法列表中
+- 这就是为什么我们刚学OC的时候有这么一句话：property = ivar + get + set
+
+## Non Fragile ivars
+
+- Non Fragile ivars是Apple在OC2.0时推出的新特性
+- 什么意思呢？我们现在有一个类A，在A里面的ivars中有两个ivar【a， b】，现在我们写了一个类B继承于A，在B中我们写了两个ivar【c，d】
+- 我们假设A是顶点，不继承于任何类了
+- B里面会只有两个ivar吗，只要有些许OC基础知识的人都会知道，不会，ab两个ivar也会跟着在列表里
+- 下面是图解：
+
+![img](http://ww4.sinaimg.cn/large/006tNc79ly1g5q7ci844dj30cd03aweq.jpg)
+
+### 遇到问题了
+
+- 看起来非常合理，但其实存在一个问题
+- 我们知道内存的分配是在编译器决定的，假如现在我们在A里面又加了两个ivar【e，f】，在没有重新分配内存的情况下就会出现B中我们自己添加的cd两个ivar正好叠在了父类的ef两个新的ivar上，当我们根据内存地址去访问的时候就会出现错误
+
+![img](http://ww3.sinaimg.cn/large/006tNc79ly1g5q7qrd7k6j30ca038q3b.jpg)
+
+- 当然，这时候你肯定会说fnndp，修改完A后进行编译运行肯定会重新分配内存，那会出现这么愚蠢的情况？
+- 可问题是，OC作为一门动态语言，对于静态库和苹果的官方库只是会进行加载
+- 在这个问题没有解决的时代，只要静态库更新下，所有使用该静态库的app都得下架重新编译
+- 于是我们的新特性**Non Fragile ivars**就闪亮登场了
+
+### 动态偏移
+
+-  `runtime`在加载`MyObject`类的时候(注:runtime加载类是在main函数跑起来之前),会计算基类的大小.`runtime`在运行期判断子类的`instanceStart`大小和父类`instanceSize`大小(**关于这两个成员请看文章开头展示的结构体内容**),如果子类的`instanceStart`小于父类的`instanceSize`,说明父类新增了成员变量,子类的成员变量需要进行偏移.
+- 在上图的例子中,当`MyObject`的`instanceStart`小于`NSObject`的`instanceSize`,`MyObject`在编译器确定的结构体将会动态调整成员变量偏移,因此程序无需重新编译,就能在新版本的系统上运行.
+
+![img](http://ww1.sinaimg.cn/large/006tNc79ly1g5q7wveyg8j30cc04paap.jpg)

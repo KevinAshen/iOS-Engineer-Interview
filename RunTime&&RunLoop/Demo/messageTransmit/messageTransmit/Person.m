@@ -11,9 +11,8 @@
 
 @implementation Person
 
-
 - (void)eat:(NSInteger)num {
-    NSLog(@"Person:eat:(NSInteger)num:%ld", num);
+NSLog(@"Person:eat:(NSInteger)num:%ld", num);
 }
 
 //+ (BOOL)resolveInstanceMethod:(SEL)sel
