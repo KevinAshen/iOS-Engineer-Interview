@@ -332,3 +332,30 @@ if (page->lessThanHalfFull()) {
 # 完整流程
 
 ![22F8A1FE520219CFB02FA1DBD1D29698](http://ww1.sinaimg.cn/large/006tNc79ly1g5450zlusvj31fk0t0462.jpg)
+
+
+# 2019.8.10 更新：token的来源
+- 在pop里面，token等同于是被传进来的参数，而是在哪里调用到这两个方法，将push返回的token传入的呢？
+- 如果我们一直查看push方法的callers，最后会找到两个来源，一个是load_images方法，这是程序编译前的加载方法，显然不是我们的目标；
+- 而另一个源头就到_objc_autoreleasePoolPush方法，那么是在哪里被调用的呢？
+
+## 败者食尘
+```objective-c
+int main(int argc, char * argv[]) {
+    /* @autoreleasepool */ { __AtAutoreleasePool __autoreleasepool; 
+        return UIApplicationMain(argc, argv, __null, NSStringFromClass(((Class (*)(id, SEL))(void *)objc_msgSend)((id)objc_getClass("AppDelegate"), sel_registerName("class"))));
+    }
+}
+
+//__AtAutoreleasePool结构体就是__autoreleasepool的本质
+//查看__AtAutoreleasePool
+struct __AtAutoreleasePool {
+  __AtAutoreleasePool() {atautoreleasepoolobj = objc_autoreleasePoolPush();}
+  ~__AtAutoreleasePool() {objc_autoreleasePoolPop(atautoreleasepoolobj);}
+  void * atautoreleasepoolobj;
+};
+```
+
+- 在我们的@autorelease{}里面这是一个结构体，用到了C++中名为构造函数 & 析构函数的技术
+- 类的**构造函数**是类的一种特殊的成员函数，它会在每次创建类的新对象时执行。构造函数的名称与类的名称是完全相同的，并且不会返回任何类型，也不会返回 void。构造函数可用于为某些成员变量设置初始值。类的**析构函数**是类的一种特殊的成员函数，它会在每次删除所创建的对象时执行。析构函数的名称与类的名称是完全相同的，只是在前面加了个波浪号（~）作为前缀，它不会返回任何值，也不能带有任何参数。析构函数有助于在跳出程序（比如关闭文件、释放内存等）前释放资源。
+- 在这里，调用了push与pop，将push返回的值传入了pop

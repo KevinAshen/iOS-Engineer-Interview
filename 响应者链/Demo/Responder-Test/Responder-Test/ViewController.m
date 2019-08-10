@@ -26,6 +26,11 @@
     
     viewA.backgroundColor = [UIColor grayColor];
     
+    UITextField *nameTextField = [[UITextField alloc] initWithFrame:CGRectMake(50, 600, 100, 100)];
+    [viewA addSubview:nameTextField];
+    
+    nameTextField.backgroundColor = [UIColor yellowColor];
+    
     RTTouchView *viewB = [[RTTouchView alloc] initWithFrame:CGRectMake(50, 50, 200, 200)];
     [viewA addSubview:viewB];
     
@@ -47,8 +52,6 @@
     
     viewC.backgroundColor = [UIColor blueColor];
     
-    [viewC becomeFirstResponder];
-    
     RTTouchView *viewD = [[RTTouchView alloc] initWithFrame:CGRectMake(50, 50, 50, 50)];
     [viewC addSubview:viewD];
     
@@ -68,6 +71,7 @@
 
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
     NSLog(@"viewContrller");
+    [self.view endEditing:YES];
 }
 
 - (void)touch {

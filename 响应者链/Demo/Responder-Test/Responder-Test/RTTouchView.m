@@ -10,11 +10,10 @@
 
 @implementation RTTouchView
 
-- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
-    [self addObserver:<#(nonnull NSObject *)#> forKeyPath:<#(nonnull NSString *)#> options:<#(NSKeyValueObservingOptions)#> context:<#(nullable void *)#>]
-    NSLog(@"Touch:%p", self);
-    [super touchesBegan:touches withEvent:event];
-}
+//- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+//    NSLog(@"Touch:%p", self);
+//    [super touchesBegan:touches withEvent:event];
+//}
 
 - (BOOL)canBecomeFirstResponder {
     return YES;
@@ -30,22 +29,22 @@
 //}
 
 
-- (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event
-{
-    //NSLog(@"%p", event);
-    if (self.hidden || !self.userInteractionEnabled || self.alpha < 0.01 || ![self pointInside:point withEvent:event] || ![self isUserInteractionEnabled]) {
-        return nil;
-    } else {
-        for (UIView *subview in [self.subviews reverseObjectEnumerator]) {
-            NSLog(@"当前hsubView:%p 当前所在View:%p", subview, self);
-            UIView *hitView = [subview hitTest:[subview convertPoint:point fromView:self] withEvent:event];
-            if (hitView) {
-                NSLog(@"确认hit-TestView:%p 当前所在View:%p", hitView, self);
-                return hitView;
-            }
-        }
-        return self;
-    }
-}
+//- (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event
+//{
+//    //NSLog(@"%p", event);
+//    if (self.hidden || !self.userInteractionEnabled || self.alpha < 0.01 || ![self pointInside:point withEvent:event] || ![self isUserInteractionEnabled]) {
+//        return nil;
+//    } else {
+//        for (UIView *subview in [self.subviews reverseObjectEnumerator]) {
+//            NSLog(@"当前hsubView:%p 当前所在View:%p", subview, self);
+//            UIView *hitView = [subview hitTest:[subview convertPoint:point fromView:self] withEvent:event];
+//            if (hitView) {
+//                NSLog(@"确认hit-TestView:%p 当前所在View:%p", hitView, self);
+//                return hitView;
+//            }
+//        }
+//        return self;
+//    }
+//}
 
 @end
