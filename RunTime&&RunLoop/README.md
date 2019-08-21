@@ -183,6 +183,12 @@
 - [OC学习Runtime之消息传递,消息转发机制](https://blog.csdn.net/u014410695/article/details/48650965)
 - [iOS底层原理总结 - RunLoop](https://www.jianshu.com/p/de752066d0ad)
 - [RunLoop的深入学习](https://puqin2333.github.io/2018/03/13/RunLoop的深入学习)
+- [深入理解RunLoop迦蓝](https://blog.ibireme.com/2015/05/18/runloop/)
+- [iOS 多线程：『RunLoop』详尽总结不羁](https://bujige.net/blog/iOS-Complete-learning-RunLoop.html)
+- [iOS11 中 Foundation.framework 的主要改动一览](https://www.jianshu.com/p/ba1752df9b7f)
+- [[进程间通信 (OSX/iOS)](https://segmentfault.com/a/1190000002400329)](https://segmentfault.com/a/1190000002400329)
+- []()
+- []()
 
 
 

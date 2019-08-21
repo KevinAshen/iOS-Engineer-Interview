@@ -161,7 +161,7 @@ KVO-test[1214:513029] person1添加KVO监听之后-元类对象 -NSKVONotifying_
   3. person实例对象isa指针变成指向NSKVONotifying_Person
   4. NSKVONotifying_Person继承于Person
   5. 而NSKVONotifying_Person与Person的isa指针指向他们各自的元类
-  6. 在这个NSKVONotifying_Person会改变被监听的属性的set方法【其余不变】
+  6. 在这个NSKVONotifying_Person只会添加被监听的属性的set方法【其余方法都不添加，还是使用superClass去原来的Class里找】
   7. 改变class方法，让person实例对象返回的类对象依然是Person，防止暴露中间类
   8. _isKVO返回YES
 
@@ -183,3 +183,5 @@ KVO-test[1214:513029] person1添加KVO监听之后-元类对象 -NSKVONotifying_
 
 ![687474703a2f2f7777322e73696e61696d672e636e2f6c617267652f303036744e6337396c793167357132676a316834736a333165363075307161382e6a7067](http://ww2.sinaimg.cn/large/006tNc79ly1g5re5kvpdyj31e60u045l.jpg)
 
+- 会在didChange方法里面就会触发回调
+- longlongValueAndNotify()，longlong是通配符
