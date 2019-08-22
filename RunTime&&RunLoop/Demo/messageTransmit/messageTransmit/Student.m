@@ -31,4 +31,15 @@ void Ceat(id self, SEL cmd, NSInteger num) {
     NSLog(@"%@, %s, %ld", [self class], sel_getName(cmd), num);
 }
 
+//- (void)testJKW {
+//    NSLog(@"TQYSD");
+//}
+
+- (void)printJKW {
+    SEL sel = @selector(testJKW);
+    IMP IMP1 = [self methodForSelector:sel];
+    NSLog(@"Student:%p", IMP1);
+}
+
+
 @end

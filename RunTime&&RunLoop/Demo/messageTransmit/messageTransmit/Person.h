@@ -17,6 +17,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)eat:(NSInteger)num;
 
+- (void)printJKW;
+
 @end
 
 NS_ASSUME_NONNULL_END

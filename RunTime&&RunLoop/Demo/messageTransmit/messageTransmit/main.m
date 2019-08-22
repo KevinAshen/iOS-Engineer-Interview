@@ -17,9 +17,12 @@ int main(int argc, const char * argv[]) {
         NSLog(@"%s", @encode(void));
 //        Person *person = [[Person alloc] init];
 //        [person eat:123];
-//        Student *student = [[Student alloc] init];
+        Student *student = [[Student alloc] init];
 //        [student eat:@"123"];
-//        Teacher *teacher = [[Teacher alloc] init];
+        Teacher *teacher = [[Teacher alloc] init];
+        
+        [student printJKW];
+        [teacher printJKW];
 //        [teacher eat:@"123"];
     }
     return 0;

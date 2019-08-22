@@ -21,4 +21,14 @@
     return [super forwardingTargetForSelector:aSelector];
 }
 
+//- (void)testJKW {
+//    NSLog(@"TQYSD");
+//}
+
+- (void)printJKW {
+    SEL sel = @selector(testJKW);
+    IMP IMP1 = [self methodForSelector:sel];
+    NSLog(@"Teacher:%p", IMP1);
+}
+
 @end
