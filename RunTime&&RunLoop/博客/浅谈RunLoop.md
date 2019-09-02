@@ -243,7 +243,7 @@ struct __CFRunLoop {
 
 - 这几个mode都很好了理解【不好理解的我们也用不到😂】
 
-- 这里把commonMode主要讲解一下，commonModel不是一个真正的mode，不像tracking，Default这些有其适用范围，它只是一个标记
+- 这里把commonMode主要讲解一下，commonMode不是一个真正的mode，不像tracking，Default这些有其适用范围，它只是一个标记
 - 当把mode标记为common时【将ModeName添加到RunLoop中的“commodModes”中；**添加到commonMode**里的Source/Observer/Timer添加到_commonModeItems】。每当RunLoop中的东西改变，RunLoop 都会自动将 _commonModeItems 里的 Source/Observer/Timer 同步到具有 “Common” 标记的所有Mode里。
 
 ### 一个运用common的常见例子
@@ -260,10 +260,10 @@ struct __CFRunLoop {
 
 - run方法会每隔两秒走一次，但如果我们拖动tableview就不会再走
 - 因为我们的NSTimer添加在了defaultMode里面，当我们拖动时，runloop会先退出，进入trackingMode，由于里面没有该timer，所以不会走这个回调
-- 而TrackingModel和DefaultModel都已经默认设置为CommonModel，我们如果添加timer的时候是添加在commonModel上就等于给default和trakcing都添加了，这样我们拖动的时候也会走回调
+- 而TrackingMode和DefaultMode都已经默认设置为CommonMode，我们如果添加timer的时候是添加在commonMode上就等于给default和trakcing都添加了，这样我们拖动的时候也会走回调
 
 ```objective-c
-[[NSRunLoop currentRunLoop] addTimer:timer forMode:UITrackingRunLoopMode];
+[[NSRunLoop currentRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
 ```
 
 ## **CFRunLoopSourceRef**
