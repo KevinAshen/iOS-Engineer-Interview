@@ -8,42 +8,48 @@
 
 #import <Foundation/Foundation.h>
 
-//int buttonID = 0;
-//
-//void buttonCallback(int event) {
-//
-//    NSLog(@"button:%d event = %d", buttonID, event);
-//}
-//
-//void setButtonCallback(int offset, void (*p)(int)) {
-//
-//    p(offset);
-//}
-//
-//void setButtonCallbacks() {
-//
+int buttonID = 0;
+
+void buttonCallback(int event) {
+
+    NSLog(@"button:%d event = %d", buttonID, event);
+}
+
+void setButtonCallback(int offset, void (*p)(int)) {
+
+    p(offset);
+}
+
+void setButtonCallbacks() {
+
 //    for (int i = 0; i < 10; i++) {
 //        buttonID = i;
 //        setButtonCallback(0 + i, &buttonCallback);
 //    }
-//}
+    
+    for (int i = 0; i < 10; i++) {
+        setButtonCallbackusingBlock(0 + i, ^(int event) {
+           NSLog(@"button:%d event = %d", buttonID, event);
+        });
+    }
+}
 
 int main(int argc, const char * argv[]) {
     @autoreleasepool {
-        //setButtonCallbacks();
-        int dmy = 256;
-        int val = 10;
-        const char  *fmt = "val = %d\n";
-        void (^blk)(void) = ^{
-            
-            printf(fmt, val);
-        };
-        
-        val = 2;
-        fmt = "THESE VALUES WERE CHANGED. val = %d\n";
-        
-        blk();
-        
+        setButtonCallbacks();
+//        int dmy = 256;
+//        int val = 10;
+//        const char  *fmt = "val = %d\n";
+//        void (^blk)(void) = ^{
+//
+//            printf(fmt, val);
+//        };
+//
+//        val = 2;
+//        fmt = "THESE VALUES WERE CHANGED. val = %d\n";
+//
+//        blk();
+//
         return 0;
     }
     return 0;
