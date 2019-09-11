@@ -52,14 +52,14 @@
 
 # 参考文章
 
-**一个好的程序员应该是那种过单行线都要往两边看的人。**
+**C语言很容易让你犯错误；C++看起来好一些，但当你用它时，你会发现会死的更惨。**
 
-- [关于iOS多线程，我说，你听，没准你就懂了！](https://www.jianshu.com/p/51fd1362249e)
-- [iOS 多线程：『GCD』详尽总结](https://www.jianshu.com/p/2d57c72016c6)
-- [iOS多线程-GCD之dispatch_set_target_queue](https://www.jianshu.com/p/1945f4b8b203)
-- [dispatch_sync死锁问题研究](https://www.jianshu.com/p/44369c02b62a)
-- [iOS GCD (四) dispatch_semaphore 信号量](https://www.jianshu.com/p/0dc231328ece)
-- [第三章 3.2.2 dispatch_queue_create](https://www.jianshu.com/p/1c09b291946a)
+- [（二）Block之存储域 NSConcreteStackBlock，NSConcreteGlobalBlock，NSConcreteMallocBlock](https://www.jianshu.com/p/840a7ec31b89)
+- []()
+- []()
+- []()
+- []()
+- []()
 - []()
 - []()
 - []()
