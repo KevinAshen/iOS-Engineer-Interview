@@ -22,16 +22,16 @@ void setButtonCallback(int offset, void (*p)(int)) {
 
 void setButtonCallbacks() {
 
-//    for (int i = 0; i < 10; i++) {
-//        buttonID = i;
-//        setButtonCallback(0 + i, &buttonCallback);
-//    }
-    
     for (int i = 0; i < 10; i++) {
-        setButtonCallbackusingBlock(0 + i, ^(int event) {
-           NSLog(@"button:%d event = %d", buttonID, event);
-        });
+        buttonID = i;
+        setButtonCallback(0 + i, &buttonCallback);
     }
+    
+//    for (int i = 0; i < 10; i++) {
+//        setButtonCallbackusingBlock(0 + i, ^(int event) {
+//           NSLog(@"button:%d event = %d", buttonID, event);
+//        });
+//    }
 }
 
 int main(int argc, const char * argv[]) {
