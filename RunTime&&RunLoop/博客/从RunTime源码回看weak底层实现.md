@@ -151,6 +151,7 @@ struct SideTable {
 
 - 苹果使用了自旋锁，分离锁，给单个的SideTable上锁
 - 保证了安全性的同时有兼具效率
+
 ### RefcountMap refcnts【存放引用计数】
 
 - 引用计数存在RefcountMap结构里，也就是上文介绍哈希桶的时候提到的拉链
@@ -247,7 +248,7 @@ class DisguisedPtr {
 ##### 补充知识：LLVM
 - LLVM是构架编译器(compiler)的框架系统，以C++编写而成，用于优化以任意程序语言编写的程序的编译时间(compile-time)、链接时间(link-time)、运行时间(run-time)以及空闲时间(idle-time)，对开发者保持开放，并兼容已有脚本。
 - LLVM计划启动于2000年，最初由美国UIUC大学的Chris Lattner博士主持开展。2006年Chris Lattner加盟Apple Inc.并致力于LLVM在Apple开发体系中的应用。Apple也是LLVM计划的主要资助者。
-- 目前LLVM已经被苹果IOS开发工具、Xilinx Vivado、Facebook、Google等各大公司采用。
+- 目前LLVM已经被苹果iOS开发工具、Xilinx Vivado、Facebook、Google等各大公司采用。
 - 简单来说，把这里的理解成某个第三方库就行
 - 这个DenseMap中的操作我只不讲源码，只分析其流程，感兴趣可以自己深入
 ##### 哈希实现

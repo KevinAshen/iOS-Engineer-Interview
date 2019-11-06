@@ -160,9 +160,64 @@ void quickSort(vector<int> &arr) {
 	quickSort(arr, 0, arrLen - 1);
 }
 
+void HeapifyUpToDown(vector<int> &arr, int k, int i) {
+	
+	while (true) {
+		int maxPos = i;
+		if (i * 2 <= k && arr[i] < arr[i * 2]) {
+			maxPos = i * 2;
+		}
+		if (i * 2 + 1 <= k && arr[maxPos] < arr[i * 2 + 1]) {
+			maxPos = i * 2 + 1;
+		}
+		if (maxPos == i) {
+			break;
+		}
+		swap(arr[i], arr[maxPos]);
+		i = maxPos;
+	}
+}
+
+// 从下往上建堆，即不停执行插入操作
+void CreateHeapDownToUp(vector<int> &arr) {
+	
+	int arrLen = arr.size();
+}
+
+// 从上往下建堆，即从后往前遍历数组，进行堆化
+void CreateHeapUpToDown(vector<int> &arr) {
+	
+	int arrLen = arr.size();
+	for (int i = arrLen / 2; i >= 1; i--) {
+		HeapifyUpToDown(arr, arrLen, i);
+	}
+	for (int &i : arr) {
+		cout << i << endl;
+	}
+}
+
+
+
+void HeapSort(vector<int> &arr) {
+	
+	int arrLen = arr.size();
+	if (arrLen == 0) {
+		return;
+	}
+	CreateHeapUpToDown(arr);
+	int k = arrLen - 1;
+	while (k > 1) {
+		swap(arr[1], arr[k]);
+		k--;
+		HeapifyUpToDown(arr, k, 1);
+	}
+	
+}
+
 int main(int argc, char *argv[]) {
-	vector<int> arr = {5, 3, 4, 1, 10};
-	quickSort(arr);
+	vector<int> arr = {0, 7, 5, 19, 8, 4, 1, 20, 13, 16};
+	HeapSort(arr);
+	cout << "\n" << endl;
 	for (int &i : arr) {
 		cout << i << endl;
 	}
