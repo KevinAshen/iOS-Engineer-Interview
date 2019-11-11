@@ -98,16 +98,21 @@ struct objc_class : objc_object {
 
 - objc_class里一共三个东西，第一个Class superclass显然是我们能理解的，是该类的父类
 - 好，此时我们思考一个问题，类也是一个对象，类也应该有一个isa，可对象的isa存储的是所属类的信息，类的isa存储的会是什么呢？
+
 #### 说明：isa指针
+
 - 学习过程中，会发现很多人将isa称之为isa指针
 - 这个因为isa虽然是一个结构体，但其中会存储所属类的地址【类也是有地址的，不在堆也不在栈，类似于单例】
 - 因此很多文章会说isa指针指向xxx，但请理解，isa不是一个指针，后面会讲它是如何获取地址的
 - 为方便讲述，下面也开始使用isa指向xxx这种说法
+
 #### 引入概念：元类与根类
 
 - 元类【meta class】：类的所属类，类的isa会指向其元类
 - 根类【root class】：根类，一般情况下就是指NSObject
+
 ### isa闭环
+
 - 首先来看一张闭环图
 
 ![isa闭环指针图](http://ww3.sinaimg.cn/large/006tNc79ly1g51w8048tuj30u00vegnt.jpg)
@@ -174,7 +179,7 @@ struct {
       uintptr_t has_assoc         : 1;  // 是否曾经或正在被关联引用，如果没有，可以快速释放内存             
       uintptr_t has_cxx_dtor      : 1;   // 这个字段存储类是否有c++析构器
       uintptr_t shiftcls          : 44;    //存储cls类地址 /*MACH_VM_MAX_ADDRESS 0x7fffffe00000*/ 
-      uintptr_t magic             : 6;           //校验          
+      uintptr_t magic             : 6;           // 校验          
       uintptr_t weakly_referenced : 1;          // 对象是否曾经或正在被弱引用，如果没有，可以快速释放内存           
       uintptr_t deallocating      : 1;         // 对象是否正在释放内存            
       uintptr_t has_sidetable_rc  : 1;             // 是否需要散列表存储引用计数。当extra_rc存储不下时，该值为1        
@@ -300,9 +305,12 @@ isa = newisa;
 
 ![小心心](http://ww2.sinaimg.cn/large/006tNc79ly1g520al4ugaj31cc0rkq56.jpg)
 
-- newisa.shiftcls = (uintptr_t)cls >> 3这句是为了**将 Class 指针中无用的后三位清除减小内存的消耗，因为类的指针要按照字节（8 bits）对齐内存，其指针后三位都是没有意义的 0**。这里首先一个OC的指针长度是47，而这里的shiftcls占44个字节，本来
+- newisa.shiftcls = (uintptr_t)cls >> 3这句是为了**将 Class 指针中无用的后三位清除减小内存的消耗，因为类的指针要按照字节（8 bits）对齐内存，其指针后三位都是没有意义的 0**。
+
 ## isa诸多用处
+
 ### 获取cls地址：ISA() 方法
+
 - 由于现在isa不在只存放地址了，还多了很多附加内容，因此需要一个专门的方法获取shiftcls中的内容
 ```objective-c
 #define ISA_MASK 0x00007ffffffffff8ULL
@@ -313,7 +321,9 @@ objc_object::ISA()
 }
 ```
 - 进行&操作获取地址
+
 ### class方法
+
 - 进入源码以后，可以查看很多内容的源码
 ```objective-c
 + (Class)class {
@@ -331,7 +341,9 @@ Class object_getClass(id obj)
 }
 ```
 - class既是类方法又是实例方法，类方法直接返回自身，实例方法返回的就是isa中的内容
+
 ### isMemberOfClass&&isKindOfClass
+
 ```objective-c
 + (BOOL)isMemberOfClass:(Class)cls {
     return object_getClass((id)self) == cls;

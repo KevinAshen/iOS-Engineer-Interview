@@ -1,5 +1,6 @@
 [TOC]
 # 关于我的仓库
+
 - 这篇文章是我为面试准备的iOS基础知识学习中的一篇
 - 我将准备面试中找到的所有学习资料，写的Demo，写的博客都放在了这个仓库里[iOS-Engineer-Interview](https://github.com/KevinAshen/iOS-Engineer-Interview)
 - 欢迎star👏👏
@@ -46,6 +47,7 @@
 - 下面开始详解这三个方法
 
 # 动态方法解析【resolveInstanceMethod】
+
 ## 作用
 - 当发现sel在class里的方法列表里对不上号的时候，会给类的方法列表添加该方法
 - 需要自己实现方法对应的imp
@@ -149,7 +151,7 @@ int main(int argc, const char * argv[]) {
 - 转发一定是在上面这些流程完了之后才会进入的
 - 再加上继承父类这一层，太神秘了呀
 
-# 备用接受者【(id)forwardingTargetForSelector:(SEL)aSelector。】
+# 备用接受者【(id)forwardingTargetForSelector:(SEL)aSelector】
 
 ## 作用
 

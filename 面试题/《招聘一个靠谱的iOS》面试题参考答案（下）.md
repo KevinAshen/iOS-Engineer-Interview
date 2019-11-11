@@ -633,6 +633,7 @@ ARC相对于MRC，不是在编译时添加retain/release/autorelease这么简单
 ###  35. BAD_ACCESS在什么情况下出现？
 访问了悬垂指针，比如对一个已经释放的对象执行了release、访问已经释放对象的成员变量或者发消息。
 死循环
+
 ###  36. 苹果是如何实现autoreleasepool的？ 
 
 autoreleasepool 以一个队列数组的形式实现,主要通过下列三个函数完成.
