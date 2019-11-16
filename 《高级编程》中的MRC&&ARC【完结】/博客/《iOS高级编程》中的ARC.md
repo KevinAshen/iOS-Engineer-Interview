@@ -104,11 +104,14 @@ NSObject *obj = [[NSObject alloc] init];
 
 #### 造成结果
 ##### 我要dealloc TestA
+
 - 我们看，testA dealloc不了，因为test1.obj持有了testA
 - 而想要废除test1.obj，就如我们上面介绍的，**废弃Test对象的同时，Test对象的obj_成员也被废除**
 - 而test1是TestB内存里的成员变量
 - 一句话，想dealloc TestA，必须先dealloc TestB才行
+
 ##### 我要dealloc TestB
+
 - 我们看，testB dealloc不了，因为test0.obj持有了testB
 - 而想要废除test0.obj，就如我们上面介绍的，**废弃Test对象的同时，Test对象的obj_成员也被废除**
 - 而test0是TestA内存里的成员变量

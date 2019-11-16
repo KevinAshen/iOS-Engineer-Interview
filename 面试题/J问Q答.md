@@ -1,12 +1,29 @@
 [toc]
-
 # 主演
 
 - J先生：
+  - 简介：单身帅气，热情潇洒，热爱iOS开发，目前在努力集齐苹果全家桶
+  - GitHub：[KevinAshen](https://github.com/KevinAshen)
+  - CSDN：[太阳骑士索拉尔](https://blog.csdn.net/KevinAshen)
+  - 简书：[太阳骑士索拉尔](https://www.jianshu.com/u/0de1c21e79ca)
+- J先生：
+  - 简介：单身帅气，热情潇洒，热爱iOS开发，目前在努力集齐苹果全家桶
+  - GitHub：[KevinAshen](https://github.com/KevinAshen)
+  - CSDN：[太阳骑士索拉尔](https://blog.csdn.net/KevinAshen)
+  - 简书：[太阳骑士索拉尔](https://www.jianshu.com/u/0de1c21e79ca)
+- 说明：
+	- 由于女主演罢工，本栏目被迫从男女知识问答互动节目改成沉闷单身男士自言自语节目
+	- 参照节目从《国光帮帮忙》变成《晓说》
+	- 不说了，眼泪要留下来了，各位观众不妨点个关注，加个赞，看看节目会进化成什么模式😢
+# 主演
+
+- J先生：
+  - 简介：单身帅气，热情潇洒，热爱iOS开发，目前在努力集齐苹果全家桶
   - GitHub：[KevinAshen](https://github.com/KevinAshen)
   - CSDN：[太阳骑士索拉尔](https://blog.csdn.net/KevinAshen)
   - 简书：[太阳骑士索拉尔](https://www.jianshu.com/u/0de1c21e79ca)
 - Q小姐：
+  - 简介：女
   - GitHub：[macoooo](https://github.com/macoooo)
   - CSDN：[qiangshuting](https://blog.csdn.net/qiangshuting)
   - 简书：[阡陌啦啦啦](https://www.jianshu.com/u/5bfc6017c805)
@@ -62,72 +79,6 @@ dispatch_async(dispatch_get_global_queue(0, 0), ^{
 - 这里的test方法是不会去执行的，原因在于performSelector方法必须要创建提交任务到runloop，而gcd底层创建的线程是默认没有开启对应runloop的，所有这个方法就会失效
 - 如果将dispatch_get_global_queue改成主队列，由于主队列所在的主线程是默认开启了runloop的，就会去执行(将dispatch_async改成同步，因为同步是在当前线程执行，那么如果当前线程是主线程，test方法也是会去执行的)
 
-## xx
-
-### Question
-
-
-
-### Answer
-
-## xx
-
-### Question
-
-
-
-### Answer
-
-## xx
-
-### Question
-
-
-
-### Answer
-
-## xx
-
-### Question
-
-
-
-### Answer
-
-## xx
-
-### Question
-
-
-
-### Answer
-
-## xx
-
-### Question
-
-
-
-### Answer
-
-## xx
-
-### Question
-
-
-
-### Answer
-
-## xx
-
-### Question
-
-
-
-### Answer
-
-# RunTime
-
 ## Category&&实例变量
 
 ### Question
@@ -153,11 +104,14 @@ dispatch_async(dispatch_get_global_queue(0, 0), ^{
     - 查看class_rw_t【运行期决定的】中的方法列表，如果没找到，查找该类对象的父类；如果找到了，将该方法存入类对象的方法缓存列表
   - 在父类中重复上述过程，其中如果在父类class_rw_t中的方法列表中找到了该方法依然会存放在最初的类对象的缓存中
   - 如果一直找到根类NSObject，依然没有找到该方法，就会进入消息转发阶段
-- 消息转发阶段
-  - 动态方法解析【resolveInstanceMethod】
-  - 备用接受者【(id)forwardingTargetForSelector:(SEL)aSelector】
-  - 完整转发【(void)forwardInvocation:(NSInvocation )anInvocation】
+- 三次拯救：
+  - 动态方法解析阶段
+    - 动态方法解析【resolveInstanceMethod】
+  - 消息转发阶段
+    - 备用接受者【(id)forwardingTargetForSelector:(SEL)aSelector】
+    - 完整转发【(void)forwardInvocation:(NSInvocation )anInvocation】
   - 这三种方式都必须手动重写才能开启，三个方法会依此执行，三个方法的关系是递进的，并且这三个方法是递进的，前一个实现了就不会走后一个，同时越往后处理的代价越大
+  - 同时这三次拯救也会顺着父类继承链往上走
 - 抛出错误
 
 ## 多继承
@@ -183,12 +137,14 @@ dispatch_async(dispatch_get_global_queue(0, 0), ^{
 - 快速消息转发【备用接受者】【forwardingTargetForSelector】
   - 通过重写forwardingTargetForSelector方法，可以把没有实现的方法转发给指定类来执行，从而实现多继承
   - 【缺点：需要消耗比较大】
-- 目前不太能明白多继承的意义是什么
 
 ## 自动释放池的应用场景
 
 ### Question
 
+- 自动释放池的应用场景
+
+### Answer
 - 对象作为方法返回值
 
   - 当一个对象要作为函数返回值的时候，本来应该在方法返回时释放该对象，但是为了能正常使用该对象，就可以使用autorelease延迟释放的特性，将其在返回之前做一次autorelease，加入到自动释放池中，保证可以被返回
@@ -205,9 +161,6 @@ dispatch_async(dispatch_get_global_queue(0, 0), ^{
             }
         }
     ```
-
-### Answer
-
 ## autorelease的优化
 
 ### Question
@@ -224,66 +177,120 @@ dispatch_async(dispatch_get_global_queue(0, 0), ^{
 - 在外部接收这个返回值的objc_retainAutoreleasedReturnValue（）会先在TLS中查询有没有这个对象，如果有，那么就直接返回这个对象（不调用retain）
 - 使用这两个函数通过TSL进行了一次中转，省下了autorelease和retain的步骤，在一定程度上达到了最优化
 
-## xx
+## id相关
+
+### id与instancetype的区别
+
+- 知识补充之返回关联类型：
+
+  - 描述：
+
+    - 类方法中alloc，new开头
+    - 实例方法中autorelease，init，retain，self开头
+
+  - 代码：
+
+    ```objective-c
+    for example
+    @interface NSObject
+    +(id)alloc;
+    -(id)init;
+    @end
+    ```
+
+  - 特点：
+
+    - 会返回方法所在类的类型的对象，即关联返回类型的方法
+    - 这些方法的返回结果以方法所在的类为类型
+
+  - 举例：
+
+    - 返回关联类型代码：
+
+      NSArray*array = [[NSArray alloc] init];
+
+      - [NSArray alloc]返回类型属于关联返回类型，NSArray *
+
+    - 非返回关联类型代码：
+
+      ```objective-c
+      // 定义
+      @interface NSArray
+      +(id)constructAnArray;
+      @end
+      // 调用
+      [NSArray constructAnArray]
+      ```
+
+      - 得到返回类型和方法声明的返回类型一样，是id
+
+- 引入instancetype的作用就在于能使得非关联返回类型的方法返回所在类的类型
+
+- 比如对于[NSArray constructAnArray]，我们得到的返回值类型就会是NSArray *
+
+- 好处：确定对象类型帮编译器更好定位代码问题
+
+- 相同点：
+
+  - 都可以作为方法的返回类型
+
+- 不同点：
+
+  - instancetype 可以返回和方法所在类相同类型的对象，id只能返回未知类型的对象。
+  - instancetype只能作为返回值，id可以作为参数.
+  - instancetype在编译的时候可以判断对象的真实类型
+
+### id与NSObject *的区别
+
+- NSObject *
+  - 静态数据类型，会惊醒编译时检查（需要强制类型转换）
+  - NSObject *无法管理到NSProxy
+- id
+  - 动态数据类型，不需要强制类型转换，可以直接使用，编译器不会检查其类型
+  - id是万能指针，可以代表一切OC对象
+
+### id的作用
+
+- 可以用于动态绑定。编译器看到id以后，认为是动态类型，不再检查类型
+- 多态, 可以减少代码量, 避免调用子类特有的方法需要强制类型转换
+- 可以用于代理(delegate)。在声明代理的时候，根本不用关心代理的类型是什么
+- 有的时候，你不知道变量的类型，就可以使用id。比如，在一个存储着NSString和NSNumber和数组中，想要找出所有的字符串。由于不确定取出的元素是哪种类型，就可以使用id进行声明，然后再判断类型
+
+## 数据类型
+
+### 静态数据类型与动态数据类型
+
+- 静态数据类型
+  - 特点:
+    - 在编译时就知道变量的类型,
+    - 知道变量中有哪些属性和方法
+    - 在编译的时候就可以访问这些属性和方法,
+    - 如果是通过静态数据类型定义变量, 如果访问不了属于静态数据类型的属性和方法, 那么编译器就会报错
+- 动态数据类型
+  - 特点:
+    - 在编译的时候编译器并不知道变量的真实类型, 只有在运行的时候才知道它的真实类型
+    - 如果通过动态数据类型定义变量, 如果访问了不属于动态数据类型的属性和方法, 编译器不会报错
+  - 弊端：
+    - 由于动态数据类型可以调用任意方法, 所以有可能调用到不属于自己的方法, 而编译时又不会报错, 所以可能导致运行时的错误
+  - 应用场景: 
+    - 多态, 可以减少代码量, 避免调用子类特有的方法需要强制类型转换
+  - 使用须知：
+    - 为了避免动态数据类型引发的运行时的错误, 一般情况下如果使用动态数据类型定义一个变量, 在调用这个对象的方法之前会进行一次判断, 判断当前对象是否能够调用这个方法
+
+# 设计模式
+
+## KVO与通知的区别
 
 ### Question
 
-
-
-### Answer
-
-## xx
-
-### Question
-
-
-
-### Answer
-
-## xx
-
-### Question
-
-
-
-### Answer
-
-## xx
-
-### Question
-
-
-
-### Answer
-
-## xx
-
-### Question
-
-
-
-### Answer
-
-## xx
-
-### Question
-
-
-
-### Answer
-
-## xx
-
-### Question
-
-
-
-### Answer
-
-## xx
-
-### Question
-
-
+- KVO
+  - 一对一的监听
+  - 只能监听属性
+  - 步骤为：注册--响应--移除
+- 通知？？？
+  - 一对多监听
+  - 可以监听方法，属性，等等
+  - 步骤为：注册、接收通知(addObserver)--->发送通知(postNotification)--->响应--->移除通知(removeObserver)
+  - 可以通过NSNotificationQueue实现异步通知，不在阻塞主线程
 
 ### Answer

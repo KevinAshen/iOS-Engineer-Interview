@@ -274,6 +274,7 @@ class DisguisedPtr {
 - 对于DenseMap的分析我们就到这
 
 ### weak_table_t weak_table
+
 ```objective-c
 /**
  * The global weak references table. Stores object ids as keys,

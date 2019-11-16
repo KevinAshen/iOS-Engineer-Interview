@@ -139,7 +139,9 @@ pop3 //pop了A, B, C
     }
 ```
 - 也就是说push调用的autoreleaseFast参数只有POOL_BOUNDARY，请记住
+
 ## autoreleaseFast
+
 ```objective-c
 static inline id *autoreleaseFast(id obj)
     {

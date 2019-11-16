@@ -381,7 +381,9 @@ struct objc_class : objc_object {
 -  其中bits是绝对的主角，里面存储了类的方法列表等等的信息
 - 看下class_data_bits_t里的内容，发现就一个uintptr_t bits
 - 看到这很容易联想到和前面isa里的bits，事实上，两者确实很想，这也是我把它放在后面来讲的原因之一
+
 ## class_rw_t与class_ro_t
+
 - bits中最重要的部分就是class_rw_t，class_ro_t两兄弟
 - 在哪里找到他们呢？返回objc_class的定义，发现其中有一个data函数
 ```objective-c
