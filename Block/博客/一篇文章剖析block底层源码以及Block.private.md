@@ -106,6 +106,7 @@ struct __block_impl {
   - 实际执行的函数，也就是block中花括号里面的代码内容，最后是转化成一个C语言函数执行的
 
 ## struct __main_block_impl_0结构体
+
 ```c++
 struct __main_block_impl_0 {
   struct __block_impl impl;
@@ -434,7 +435,6 @@ int main(int argc, const char * argv[]) {
     }
     return 0;
 }
-
 ```
 
 ```c++
@@ -704,7 +704,7 @@ obj = {
   - 这一块参看：解析Block.private
 - C语言结构体中，编译器很难处理对象的初始化和销毁操作，所以使用runtime来管理相关内存。
 
- # block 循环引用
+# block 循环引用
 
 - 举个例子，下面是一个类的`init`方法,`blk_`是该类的一个成员变量：
 
@@ -775,6 +775,7 @@ obj = {
   - 将 Block 赋值给类的附有 `__strong`修饰符的`id`类型或 Block 类型成员变量时【当然这种情况就是最多的，只要赋值一个block变量就会进行复制】
 
 ## 手动拷贝
+
 - 通过copy方法来对Block进行手动拷贝，当我们不确定Block是否会被遗弃，需不需要拷贝时，直接使用copy方法就行，不会造成任何问题
 ##  Block 不同类的拷贝效果
 
@@ -2532,3 +2533,4 @@ static int let_there_be_data = 42;
 
 
 
+​	

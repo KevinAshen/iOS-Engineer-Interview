@@ -102,6 +102,13 @@
   - 幕布链接：https://mubu.com/doc/8cd4n4LoBw
   - 这一部分都是自己过往博客提炼出来的知识点
   - Category那一块是边学边总结的
+- 属性关键字：
+  - 幕布链接：https://mubu.com/doc/yg8tZgFlK0
+  - 这一部分强调了copy
+- Block：
+  - 幕布链接：https://mubu.com/doc/og_Yq8zpK0
+  - 这一部分主要来源于自己的博客
+  - block比较复杂，还是贴了一堆源码
 
 # 特别鸣谢
 
