@@ -91,6 +91,7 @@
 
 - 离我规划的正式投简历时间大概就一个月不到了
 - 这里我开始翻看之前的博客，看一些总结性的iOS网课，将Category这类之前没有好好准备的
+- 这一部分还包括市面上我搜到的所有面试题
 - 多线程
   - 幕布链接：https://mubu.com/doc/lenYY-w2Q0
   - 这一部分包括GCD，NSThread，NSOperation以及搜到的多线程面试题
@@ -109,6 +110,12 @@
   - 幕布链接：https://mubu.com/doc/og_Yq8zpK0
   - 这一部分主要来源于自己的博客
   - block比较复杂，还是贴了一堆源码
+- RunLoop：
+  - 幕布链接：https://mubu.com/doc/tgsuA4Qto0
+  - 主要部分来自于不羁阁的博客，迦蓝的博客补充了一下
+- 事件传递：
+  - 幕布链接：https://mubu.com/doc/daTBx-INBw
+  - 主要部分来自于刘小壮的博客，壮哥威武
 
 # 特别鸣谢
 
