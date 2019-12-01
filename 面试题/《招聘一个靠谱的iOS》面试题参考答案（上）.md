@@ -1988,9 +1988,11 @@ runtime部分主要参考[Apple官方文档：Declared Properties](https://devel
 
 ### 31. 猜想runloop内部是如何实现的？
 ### 32. objc使用什么机制管理对象内存？
+
 ### 33. ARC通过什么方式帮助开发者管理内存？
 ### 34. 不手动指定autoreleasepool的前提下，一个autorealese对象在什么时刻释放？（比如在一个vc的viewDidLoad中创建）
 ### 35. `BAD_ACCESS`在什么情况下出现？
+
 ### 36. 苹果是如何实现autoreleasepool的？ 
 ### 37. 使用block时什么情况会发生引用循环，如何解决？
 ### 38. 在block内如何修改block外部变量？

@@ -223,8 +223,8 @@ void HeapSort(vector<int> &arr) {
 }
 
 int main(int argc, char *argv[]) {
-	vector<int> arr = {0, 7, 5, 19, 8, 4, 1, 20, 13, 16};
-	HeapSort(arr);
+	vector<int> arr = {5, 5, 5, 19, 8, 4, 1, 20, 13, 16};
+	insertionSort(arr);
 	cout << "\n" << endl;
 	for (int &i : arr) {
 		cout << i << endl;
