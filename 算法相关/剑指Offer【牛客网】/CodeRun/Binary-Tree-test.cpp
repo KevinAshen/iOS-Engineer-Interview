@@ -4,6 +4,12 @@
 
 #define random(x) (rand()%x)
 
+struct ListNode {
+	int val;
+	ListNode *next;
+	ListNode(int x) : val(x), next(NULL) {}	
+};
+
 typedef struct BTNode {
 	int data;
 	struct BTNode *lChild;
